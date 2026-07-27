@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useUser } from '@clerk/nextjs';
 import { motion } from 'framer-motion';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Eye, Click, TrendingUp, Users } from 'lucide-react';
+import { Eye, MousePointerClick, TrendingUp, Users } from 'lucide-react';
 import Link from 'next/link';
 
 export default function DashboardPage() {
@@ -46,7 +46,7 @@ export default function DashboardPage() {
       color: 'bg-blue-100 text-blue-600',
     },
     {
-      icon: Click,
+      icon: MousePointerClick,
       label: 'Cliques',
       value: '2,840',
       change: '+8.2%',
