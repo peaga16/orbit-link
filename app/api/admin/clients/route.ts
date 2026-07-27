@@ -9,6 +9,9 @@ import {
 import { ADMIN_COOKIE_NAME, verifyAdminToken } from '@/lib/admin-auth';
 import { hashClientPassword } from '@/lib/client-auth';
 
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
 function unauthorized(request: NextRequest) {
   return !verifyAdminToken(request.cookies.get(ADMIN_COOKIE_NAME)?.value);
 }

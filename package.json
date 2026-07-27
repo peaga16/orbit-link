@@ -4,14 +4,15 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:seed": "node scripts/seed.js",
     "db:studio": "prisma studio",
-    "setup": "prisma generate && prisma db push && node scripts/seed.js"
+    "setup": "prisma generate && prisma db push && node scripts/seed.js",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@clerk/nextjs": "^4.27.0",
