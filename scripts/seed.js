@@ -1,232 +1,179 @@
 const { PrismaClient } = require('@prisma/client');
+const { randomBytes, scryptSync } = require('crypto');
 
 const prisma = new PrismaClient();
 
-async function main() {
-  console.log('🌱 Começando seed do banco de dados...');
+function hashPassword(password) {
+  const salt = randomBytes(16).toString('hex');
+  const hash = scryptSync(password, salt, 64).toString('hex');
+  return `scrypt:${salt}:${hash}`;
+}
 
-  // Create demo user
-  const user = await prisma.user.upsert({
-    where: { clerkId: 'demo_user_001' },
-    update: {},
-    create: {
-      clerkId: 'demo_user_001',
-      email: 'demo@linkflow.com.br',
-      name: 'Demo User',
-      plan: 'starter',
+const clients = [
+  {
+    slug: 'northstudio',
+    name: 'North Studio',
+    title: 'Design que posiciona marcas no caminho certo.',
+    description: 'Estúdio criativo especializado em identidade visual, social media e experiências digitais para empresas que querem crescer com consistência.',
+    theme: 'dark',
+    primaryColor: '#7C3AED',
+    secondaryColor: '#3B0764',
+    backgroundColor: '#0C0712',
+    backgroundImage: 'https://images.unsplash.com/photo-1557683316-973673baf926?w=1800&auto=format&fit=crop&q=85',
+    fontFamily: 'Tecna',
+    logo: 'https://images.unsplash.com/photo-1618005198919-d3d4b5a92ead?w=500&auto=format&fit=crop&q=85',
+    headerImage: 'https://images.unsplash.com/photo-1559028012-481c04fa702d?w=1400&auto=format&fit=crop&q=85',
+    showBranding: true,
+    clientEmail: 'north@orbitlink.com',
+    clientPassword: 'North@2026',
+    views: 0,
+    clicks: 0,
+    links: [
+      { title: 'Conheça nosso portfólio', url: 'https://www.behance.net/', description: 'Projetos de branding e social media', icon: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=900&auto=format&fit=crop&q=85' },
+      { title: 'Solicitar orçamento', url: 'https://wa.me/5587999999999', description: 'Fale diretamente com o estúdio', icon: 'https://images.unsplash.com/photo-1558655146-9f40138edfeb?w=900&auto=format&fit=crop&q=85' },
+      { title: 'Instagram', url: 'https://instagram.com/', description: 'Acompanhe os projetos mais recentes', icon: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=900&auto=format&fit=crop&q=85' },
+      { title: 'LinkedIn', url: 'https://linkedin.com/', description: 'Conecte-se com a North Studio', icon: 'https://images.unsplash.com/photo-1573164574572-cb89e39749b4?w=900&auto=format&fit=crop&q=85' },
+    ],
+    pix: {
+      title: 'Pagamento via Pix',
+      pixKey: 'northstudio@exemplo.com',
+      description: 'Copie a chave ou escaneie o QR Code.',
     },
-  });
-
-  console.log(`✅ Usuário criado: ${user.name}`);
-
-  // Create first demo workspace (North Studio)
-  const workspace1 = await prisma.workspace.upsert({
-    where: { slug: 'northstudio' },
-    update: {},
-    create: {
-      userId: user.id,
-      slug: 'northstudio',
-      name: 'North Studio',
-      title: 'North Studio - Agência Criativa',
-      description: 'Agência especializada em design e identidade visual',
-      theme: 'modern',
-      primaryColor: '#FF0000',
-      secondaryColor: '#000000',
-      backgroundColor: '#FFFFFF',
-      fontFamily: 'Inter',
-      logo: 'https://images.unsplash.com/photo-1611532736579-6b16e2b50449?w=200&h=200&fit=crop',
-      showBranding: true,
-    },
-  });
-
-  console.log(`✅ Workspace criado: ${workspace1.name}`);
-
-  // Create links for workspace 1
-  const links1 = await Promise.all([
-    prisma.link.create({
-      data: {
-        workspaceId: workspace1.id,
-        title: 'Portfólio',
-        url: 'https://northstudio.com',
-        description: 'Veja nossos projetos e cases',
-        order: 1,
-        isActive: true,
-      },
-    }),
-    prisma.link.create({
-      data: {
-        workspaceId: workspace1.id,
-        title: 'Instagram',
-        url: 'https://instagram.com/northstudio',
-        description: 'Siga nossos trabalhos',
-        order: 2,
-        isActive: true,
-      },
-    }),
-    prisma.link.create({
-      data: {
-        workspaceId: workspace1.id,
-        title: 'WhatsApp',
-        url: 'https://wa.me/5511999999999',
-        description: 'Chat direto no WhatsApp',
-        order: 3,
-        isActive: true,
-      },
-    }),
-    prisma.link.create({
-      data: {
-        workspaceId: workspace1.id,
-        title: 'LinkedIn',
-        url: 'https://linkedin.com/company/northstudio',
-        description: 'Conecte conosco',
-        order: 4,
-        isActive: true,
-      },
-    }),
-    prisma.link.create({
-      data: {
-        workspaceId: workspace1.id,
-        title: 'Agendar Reunião',
-        url: 'https://calendly.com/northstudio',
-        description: 'Marque uma consultoria',
-        order: 5,
-        isActive: true,
-      },
-    }),
-  ]);
-
-  console.log(`✅ ${links1.length} links criados para North Studio`);
-
-  // Create Pix QR Code for workspace 1
-  const pix1 = await prisma.pixQRCode.create({
-    data: {
-      workspaceId: workspace1.id,
-      title: 'Pague com Pix',
-      pixKey: '123e4567-e89b-12d3-a456-426614174000',
-      description: 'QR Code para pagamentos via Pix',
-      isActive: true,
-    },
-  });
-
-  console.log(`✅ QR Code Pix criado para North Studio`);
-
-  // Create second demo workspace (Brena Bright)
-  const workspace2 = await prisma.workspace.upsert({
-    where: { slug: 'brena-bright' },
-    update: {},
-    create: {
-      userId: user.id,
-      slug: 'brena-bright',
-      name: 'Brena Bright',
-      title: 'Brena Bright - Limpeza Premium',
-      description: 'Serviço premium de limpeza residencial em São Paulo',
-      theme: 'modern',
-      primaryColor: '#10B981',
-      secondaryColor: '#1F2937',
-      backgroundColor: '#FFFFFF',
-      fontFamily: 'Inter',
-      logo: 'https://images.unsplash.com/photo-1581578731548-c64695c952952?w=200&h=200&fit=crop',
-      showBranding: true,
-    },
-  });
-
-  console.log(`✅ Workspace criado: ${workspace2.name}`);
-
-  // Create links for workspace 2
-  const links2 = await Promise.all([
-    prisma.link.create({
-      data: {
-        workspaceId: workspace2.id,
-        title: 'Agendar Limpeza',
-        url: 'https://calendly.com/brena-bright',
-        description: 'Marque sua limpeza agora',
-        order: 1,
-        isActive: true,
-      },
-    }),
-    prisma.link.create({
-      data: {
-        workspaceId: workspace2.id,
-        title: 'WhatsApp',
-        url: 'https://wa.me/5511988888888',
-        description: 'Dúvidas? Fale conosco',
-        order: 2,
-        isActive: true,
-      },
-    }),
-    prisma.link.create({
-      data: {
-        workspaceId: workspace2.id,
-        title: 'Avaliações',
-        url: 'https://google.com/maps/place/brena-bright',
-        description: 'Veja o que nossos clientes dizem',
-        order: 3,
-        isActive: true,
-      },
-    }),
-    prisma.link.create({
-      data: {
-        workspaceId: workspace2.id,
-        title: 'Planos e Preços',
-        url: 'https://brena-bright.com/planos',
-        description: 'Conheça nossos pacotes',
-        order: 4,
-        isActive: true,
-      },
-    }),
-    prisma.link.create({
-      data: {
-        workspaceId: workspace2.id,
-        title: 'Instagram',
-        url: 'https://instagram.com/brena.bright',
-        description: 'Veja nossos resultados',
-        order: 5,
-        isActive: true,
-      },
-    }),
-  ]);
-
-  console.log(`✅ ${links2.length} links criados para Brena Bright`);
-
-  // Create Pix QR Code for workspace 2
-  const pix2 = await prisma.pixQRCode.create({
-    data: {
-      workspaceId: workspace2.id,
-      title: 'Pague com Pix',
+  },
+  {
+    slug: 'brena-bright',
+    name: 'Brena Bright',
+    title: 'Limpeza premium para uma rotina mais leve.',
+    description: 'Serviços de limpeza residencial com atendimento cuidadoso, agendamento rápido e planos personalizados.',
+    theme: 'modern',
+    primaryColor: '#10B981',
+    secondaryColor: '#065F46',
+    backgroundColor: '#F3FFFA',
+    backgroundImage: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=1800&auto=format&fit=crop&q=85',
+    fontFamily: 'Tecna',
+    logo: 'https://images.unsplash.com/photo-1581578731548-c64695c952952?w=500&auto=format&fit=crop&q=85',
+    headerImage: 'https://images.unsplash.com/photo-1527515637462-cff94eecc1ac?w=1400&auto=format&fit=crop&q=85',
+    showBranding: true,
+    clientEmail: 'brena@orbitlink.com',
+    clientPassword: 'Brena@2026',
+    views: 0,
+    clicks: 0,
+    links: [
+      { title: 'Agendar uma limpeza', url: 'https://calendly.com/', description: 'Escolha o melhor dia e horário', icon: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=900&auto=format&fit=crop&q=85' },
+      { title: 'Falar no WhatsApp', url: 'https://wa.me/5511988888888', description: 'Tire dúvidas e peça seu orçamento', icon: 'https://images.unsplash.com/photo-1516321497487-e288fb19713f?w=900&auto=format&fit=crop&q=85' },
+      { title: 'Avaliações de clientes', url: 'https://maps.google.com/', description: 'Veja experiências de outros clientes', icon: 'https://images.unsplash.com/photo-1484154218962-a197022b5858?w=900&auto=format&fit=crop&q=85' },
+      { title: 'Instagram', url: 'https://instagram.com/', description: 'Antes e depois dos nossos serviços', icon: 'https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?w=900&auto=format&fit=crop&q=85' },
+    ],
+    pix: {
+      title: 'Pagar serviço com Pix',
       pixKey: 'brena@bright.com.br',
-      description: 'QR Code para pagamentos via Pix',
-      isActive: true,
+      description: 'Pagamento rápido e seguro.',
+    },
+  },
+];
+
+async function main() {
+  console.log('Preparando dados iniciais da Orbit...');
+
+  const admin = await prisma.user.upsert({
+    where: { clerkId: 'orbit_local_admin' },
+    update: {
+      email: process.env.ADMIN_EMAIL || 'admin@orbitlink.com',
+      name: 'Administrador Orbit',
+      plan: 'premium',
+    },
+    create: {
+      clerkId: 'orbit_local_admin',
+      email: process.env.ADMIN_EMAIL || 'admin@orbitlink.com',
+      name: 'Administrador Orbit',
+      plan: 'premium',
     },
   });
 
-  console.log(`✅ QR Code Pix criado para Brena Bright`);
-
-  // Create sample analytics
-  for (let i = 0; i < 50; i++) {
-    await prisma.analytics.create({
-      data: {
-        workspaceId: workspace1.id,
-        linkId: links1[0].id,
-        eventType: 'click',
-        referrer: 'direct',
-        userAgent: 'Mozilla/5.0',
-        country: 'BR',
-        city: 'São Paulo',
+  for (const data of clients) {
+    const workspace = await prisma.workspace.upsert({
+      where: { slug: data.slug },
+      update: {
+        userId: admin.id,
+        name: data.name,
+        title: data.title,
+        description: data.description,
+        theme: data.theme,
+        primaryColor: data.primaryColor,
+        secondaryColor: data.secondaryColor,
+        backgroundColor: data.backgroundColor,
+        backgroundImage: data.backgroundImage,
+        fontFamily: data.fontFamily,
+        logo: data.logo,
+        headerImage: data.headerImage,
+        showBranding: data.showBranding,
+        clientEmail: data.clientEmail,
+        clientPasswordHash: hashPassword(data.clientPassword),
+      },
+      create: {
+        userId: admin.id,
+        slug: data.slug,
+        name: data.name,
+        title: data.title,
+        description: data.description,
+        theme: data.theme,
+        primaryColor: data.primaryColor,
+        secondaryColor: data.secondaryColor,
+        backgroundColor: data.backgroundColor,
+        backgroundImage: data.backgroundImage,
+        fontFamily: data.fontFamily,
+        logo: data.logo,
+        headerImage: data.headerImage,
+        showBranding: data.showBranding,
+        clientEmail: data.clientEmail,
+        clientPasswordHash: hashPassword(data.clientPassword),
+        views: data.views,
+        clicks: data.clicks,
       },
     });
+
+    const linkCount = await prisma.link.count({ where: { workspaceId: workspace.id } });
+    if (linkCount === 0) {
+      await prisma.link.createMany({
+        data: data.links.map((link, index) => ({
+          workspaceId: workspace.id,
+          title: link.title,
+          url: link.url,
+          description: link.description,
+          icon: link.icon,
+          order: index,
+          isActive: true,
+          clicks: 0,
+        })),
+      });
+    }
+
+    const pixCount = await prisma.pixQRCode.count({ where: { workspaceId: workspace.id } });
+    if (pixCount === 0) {
+      await prisma.pixQRCode.create({
+        data: {
+          workspaceId: workspace.id,
+          title: data.pix.title,
+          pixKey: data.pix.pixKey,
+          description: data.pix.description,
+          isActive: true,
+        },
+      });
+    }
+
+    console.log(`Cliente cadastrado: ${data.name} (/${data.slug})`);
   }
 
-  console.log(`✅ 50 eventos de analytics criados`);
-
-  console.log('🎉 Seed concluído com sucesso!');
+  console.log('Setup concluído. Dois clientes estão prontos para uso.');
+  console.log('North Studio: north@orbitlink.com / North@2026');
+  console.log('Brena Bright: brena@orbitlink.com / Brena@2026');
 }
 
 main()
-  .then(async () => {
-    await prisma.$disconnect();
+  .catch((error) => {
+    console.error(error);
+    process.exitCode = 1;
   })
-  .catch(async (e) => {
-    console.error(e);
+  .finally(async () => {
     await prisma.$disconnect();
-    process.exit(1);
   });

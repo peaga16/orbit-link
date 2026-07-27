@@ -1,24 +1,15 @@
-import type { Metadata } from "next";
-import { ClerkProvider } from "@clerk/nextjs";
-import "./global.css";
+import type { Metadata } from 'next';
+import './globals.css';
 
 export const metadata: Metadata = {
-  title: "LinkFlow - SaaS de Link in Bio",
-  description: "Plataforma para criar páginas personalizadas com links",
+  title: 'Orbit — Links, clientes e presença digital',
+  description: 'Crie, gerencie e publique páginas profissionais para todos os seus clientes.',
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <ClerkProvider>
-      <html lang="pt-BR">
-        <body>
-          {children}
-        </body>
-      </html>
-    </ClerkProvider>
+    <html lang="pt-BR">
+      <body>{children}</body>
+    </html>
   );
 }

@@ -1,38 +1,8 @@
-type ClassDictionary = Record<string, boolean | null | undefined>;
-export type ClassValue =
-  | string
-  | number
-  | boolean
-  | null
-  | undefined
-  | ClassDictionary
-  | ClassValue[];
-
-function resolveClassValue(value: ClassValue): string[] {
-  if (!value) return [];
-
-  if (typeof value === 'string' || typeof value === 'number') {
-    return [String(value)];
-  }
-
-  if (Array.isArray(value)) {
-    return value.flatMap(resolveClassValue);
-  }
-
-  if (typeof value === 'object') {
-    return Object.entries(value)
-      .filter(([, enabled]) => Boolean(enabled))
-      .map(([className]) => className);
-  }
-
-  return [];
-}
-
 /**
- * Combina classes CSS condicionais.
+ * Combina classes CSS ignorando valores vazios.
  */
-export function cn(...inputs: ClassValue[]): string {
-  return inputs.flatMap(resolveClassValue).join(' ');
+export function cn(...inputs: Array<string | false | null | undefined>): string {
+  return inputs.filter(Boolean).join(' ');
 }
 
 /**

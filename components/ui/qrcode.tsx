@@ -1,34 +1,34 @@
 'use client';
 
-import QRCodeLibrary from 'qrcode';
+import QRCode from 'qrcode';
 import { useEffect, useRef } from 'react';
 
-interface QRCodeProps {
+interface QRCodeComponentProps {
   value: string;
   size?: number;
 }
 
-export function QRCode({ value, size = 200 }: QRCodeProps) {
+export function QRCodeComponent({ value, size = 200 }: QRCodeComponentProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    if (!canvasRef.current) return;
-
-    QRCodeLibrary.toCanvas(
-      canvasRef.current,
-      value,
-      {
-        width: size,
-        margin: 2,
-        color: {
-          dark: '#000000',
-          light: '#FFFFFF',
+    if (canvasRef.current) {
+      QRCode.toCanvas(
+        canvasRef.current,
+        value,
+        {
+          width: size,
+          margin: 2,
+          color: {
+            dark: '#000000',
+            light: '#FFFFFF',
+          },
         },
-      },
-      (error) => {
-        if (error) console.error(error);
-      }
-    );
+        (error) => {
+          if (error) console.error(error);
+        }
+      );
+    }
   }, [value, size]);
 
   return <canvas ref={canvasRef} />;

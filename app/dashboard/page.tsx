@@ -1,211 +1,91 @@
-'use client';
-
-import { useEffect, useState } from 'react';
-import { useUser } from '@clerk/nextjs';
-import { motion } from 'framer-motion';
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Eye, MousePointerClick, TrendingUp, Users } from 'lucide-react';
 import Link from 'next/link';
+import { ArrowUpRight, Eye, Link2, MousePointerClick, Pencil, TrendingUp } from 'lucide-react';
+import { requireClientSession } from '@/lib/client-auth';
+import { prisma } from '@/lib/prisma';
 
-export default function DashboardPage() {
-  const { user } = useUser();
-  const [stats, setStats] = useState(null);
-  const [chartData, setChartData] = useState([]);
+export const dynamic = 'force-dynamic';
 
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const res = await fetch('/api/dashboard/stats');
-        const data = await res.json();
-        setStats(data);
+function formatNumber(value: number) {
+  return new Intl.NumberFormat('pt-BR').format(value);
+}
 
-        // Simulate chart data
-        setChartData([
-          { name: 'Seg', views: 120, clicks: 40 },
-          { name: 'Ter', views: 221, clicks: 95 },
-          { name: 'Qua', views: 229, clicks: 130 },
-          { name: 'Qui', views: 200, clicks: 98 },
-          { name: 'Sex', views: 300, clicks: 201 },
-          { name: 'Sab', views: 250, clicks: 120 },
-          { name: 'Dom', views: 200, clicks: 80 },
-        ]);
-      } catch (error) {
-        console.error('Error fetching stats:', error);
-      }
-    };
-
-    fetchStats();
-  }, []);
-
-  const statCards = [
-    {
-      icon: Eye,
-      label: 'Visualizações',
-      value: '12,450',
-      change: '+12.5%',
-      color: 'bg-blue-100 text-blue-600',
+export default async function ClientDashboardPage() {
+  const session = requireClientSession();
+  const workspace = await prisma.workspace.findUnique({
+    where: { id: session.workspaceId },
+    include: {
+      links: { orderBy: [{ clicks: 'desc' }, { order: 'asc' }] },
+      analytics: { orderBy: { createdAt: 'desc' }, take: 8 },
     },
-    {
-      icon: MousePointerClick,
-      label: 'Cliques',
-      value: '2,840',
-      change: '+8.2%',
-      color: 'bg-green-100 text-green-600',
-    },
-    {
-      icon: TrendingUp,
-      label: 'Taxa de Conversão',
-      value: '22.8%',
-      change: '+4.3%',
-      color: 'bg-red-100 text-red-600',
-    },
-    {
-      icon: Users,
-      label: 'Visitantes Únicos',
-      value: '1,284',
-      change: '+15.7%',
-      color: 'bg-purple-100 text-purple-600',
-    },
+  });
+
+  if (!workspace) return null;
+
+  const activeLinks = workspace.links.filter((link) => link.isActive).length;
+  const clickRate = workspace.views > 0 ? (workspace.clicks / workspace.views) * 100 : 0;
+  const stats = [
+    { label: 'Visualizações', value: formatNumber(workspace.views), icon: Eye, detail: 'Visitas reais na página' },
+    { label: 'Cliques', value: formatNumber(workspace.clicks), icon: MousePointerClick, detail: 'Acessos aos seus links' },
+    { label: 'Taxa de clique', value: `${clickRate.toFixed(1)}%`, icon: TrendingUp, detail: 'Cliques por visualização' },
+    { label: 'Links ativos', value: activeLinks, icon: Link2, detail: `${workspace.links.length} links cadastrados` },
   ];
+  const maxLinkClicks = Math.max(...workspace.links.map((link) => link.clicks), 1);
 
   return (
-    <div className="space-y-6">
-      {/* Welcome Section */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="bg-gradient-to-r from-red-600 to-red-700 rounded-2xl p-8 text-white"
-      >
-        <h1 className="text-3xl font-bold mb-2">
-          Bem-vindo, {user?.firstName}! 👋
-        </h1>
-        <p className="text-red-100">
-          Acompanhe sua performance e gerencie seus links em tempo real
-        </p>
-      </motion.div>
-
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {statCards.map((stat, index) => (
-          <motion.div
-            key={index}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
-            className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-shadow"
-          >
-            <div className={`w-12 h-12 rounded-lg ${stat.color} flex items-center justify-center mb-4`}>
-              <stat.icon size={24} />
-            </div>
-            <h3 className="text-gray-600 text-sm font-medium mb-1">
-              {stat.label}
-            </h3>
-            <div className="flex items-end justify-between">
-              <div className="text-2xl font-bold text-gray-900">
-                {stat.value}
-              </div>
-              <span className="text-green-600 text-xs font-medium">
-                {stat.change}
-              </span>
-            </div>
-          </motion.div>
-        ))}
-      </div>
-
-      {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Views Chart */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="bg-white rounded-xl border border-gray-200 p-6"
-        >
-          <h3 className="text-lg font-bold text-gray-900 mb-4">
-            Visualizações Últimos 7 Dias
-          </h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-              <XAxis dataKey="name" stroke="#9ca3af" />
-              <YAxis stroke="#9ca3af" />
-              <Tooltip />
-              <Line
-                type="monotone"
-                dataKey="views"
-                stroke="#dc2626"
-                dot={{ fill: '#dc2626' }}
-                strokeWidth={2}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </motion.div>
-
-        {/* Clicks Chart */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="bg-white rounded-xl border border-gray-200 p-6"
-        >
-          <h3 className="text-lg font-bold text-gray-900 mb-4">
-            Cliques Últimos 7 Dias
-          </h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-              <XAxis dataKey="name" stroke="#9ca3af" />
-              <YAxis stroke="#9ca3af" />
-              <Tooltip />
-              <Bar dataKey="clicks" fill="#16a34a" radius={[8, 8, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </motion.div>
-      </div>
-
-      {/* Quick Actions */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6 }}
-        className="bg-white rounded-xl border border-gray-200 p-6"
-      >
-        <h3 className="text-lg font-bold text-gray-900 mb-4">
-          Ações Rápidas
-        </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <Link
-            href="/dashboard/links"
-            className="p-4 bg-red-50 hover:bg-red-100 rounded-lg transition-colors group cursor-pointer"
-          >
-            <div className="font-semibold text-red-600 group-hover:text-red-700">
-              ➕ Adicionar Link
-            </div>
-            <p className="text-sm text-gray-600 mt-1">Crie um novo link personalizado</p>
-          </Link>
-
-          <Link
-            href="/dashboard/settings"
-            className="p-4 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors group cursor-pointer"
-          >
-            <div className="font-semibold text-blue-600 group-hover:text-blue-700">
-              🎨 Personalizar
-            </div>
-            <p className="text-sm text-gray-600 mt-1">Customize seu tema e cores</p>
-          </Link>
-
-          <Link
-            href="/dashboard/analytics"
-            className="p-4 bg-green-50 hover:bg-green-100 rounded-lg transition-colors group cursor-pointer"
-          >
-            <div className="font-semibold text-green-600 group-hover:text-green-700">
-              📊 Analytics
-            </div>
-            <p className="text-sm text-gray-600 mt-1">Veja análises detalhadas</p>
-          </Link>
+    <div className="space-y-7">
+      <section className="relative overflow-hidden rounded-3xl bg-[#0b0b0b] p-7 text-white shadow-xl sm:p-9">
+        <div className="absolute inset-0 fine-grid opacity-40" />
+        <div className="absolute -right-20 -top-24 h-72 w-72 rounded-full blur-[80px]" style={{ backgroundColor: `${workspace.primaryColor}44` }} />
+        <div className="relative flex flex-col gap-7 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <div className="text-xs font-bold uppercase tracking-[0.25em] text-cyan-400">{workspace.name}</div>
+            <h2 className="mt-4 max-w-2xl text-3xl font-bold tracking-tight sm:text-4xl">Sua página, seus dados, seu controle.</h2>
+            <p className="mt-4 max-w-xl text-sm leading-6 text-white/45">Os números abaixo são registrados a partir das visitas e cliques na sua página pública.</p>
+          </div>
+          <Link href="/dashboard/editar" className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-cyan-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-cyan-500"><Pencil size={17} /> Editar minha página</Link>
         </div>
-      </motion.div>
+      </section>
+
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {stats.map((stat) => (
+          <div key={stat.label} className="admin-card p-5">
+            <div className="flex items-center justify-between"><div className="flex h-11 w-11 items-center justify-center rounded-xl bg-cyan-50 text-cyan-600"><stat.icon size={20} /></div><span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600"><ArrowUpRight size={14} /> Ao vivo</span></div>
+            <div className="mt-5 text-3xl font-bold tracking-tight text-slate-950">{stat.value}</div>
+            <div className="mt-1 text-sm font-semibold text-slate-700">{stat.label}</div>
+            <div className="mt-1 text-xs text-slate-400">{stat.detail}</div>
+          </div>
+        ))}
+      </section>
+
+      <section className="grid gap-6 xl:grid-cols-[1.1fr_.9fr]">
+        <div className="admin-card overflow-hidden">
+          <div className="flex items-center justify-between border-b border-slate-200 px-5 py-5 sm:px-6"><div><h3 className="font-bold text-slate-950">Desempenho dos links</h3><p className="mt-1 text-xs text-slate-500">Cliques reais, do maior para o menor.</p></div><Link href="/dashboard/editar#links" className="text-sm font-semibold text-cyan-600">Editar links</Link></div>
+          <div className="p-5 sm:p-6">
+            <div className="space-y-5">
+              {workspace.links.map((link) => (
+                <div key={link.id}>
+                  <div className="mb-2 flex items-center justify-between gap-3 text-sm"><span className="truncate font-semibold text-slate-700">{link.title}</span><span className="text-xs font-bold text-slate-500">{formatNumber(link.clicks)} cliques</span></div>
+                  <div className="h-2 overflow-hidden rounded-full bg-slate-100"><div className="h-full rounded-full bg-gradient-to-r from-cyan-600 to-violet-500" style={{ width: `${Math.max((link.clicks / maxLinkClicks) * 100, link.clicks ? 6 : 0)}%` }} /></div>
+                </div>
+              ))}
+              {!workspace.links.length && <div className="rounded-xl border border-dashed border-slate-200 p-10 text-center text-sm text-slate-400">Adicione links para começar a medir os cliques.</div>}
+            </div>
+          </div>
+        </div>
+
+        <div className="admin-card overflow-hidden">
+          <div className="border-b border-slate-200 px-5 py-5 sm:px-6"><h3 className="font-bold text-slate-950">Atividade recente</h3><p className="mt-1 text-xs text-slate-500">Últimos eventos registrados.</p></div>
+          <div>
+            {workspace.analytics.map((event, index) => (
+              <div key={event.id} className={`flex items-center gap-3 px-5 py-4 sm:px-6 ${index > 0 ? 'border-t border-slate-100' : ''}`}>
+                <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${event.eventType === 'click' ? 'bg-cyan-50 text-cyan-600' : 'bg-blue-50 text-blue-600'}`}>{event.eventType === 'click' ? <MousePointerClick size={16} /> : <Eye size={16} />}</div>
+                <div className="min-w-0 flex-1"><div className="text-sm font-semibold text-slate-800">{event.eventType === 'click' ? 'Clique em um link' : 'Nova visualização'}</div><div className="mt-1 text-xs text-slate-400">{new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeStyle: 'short' }).format(event.createdAt)}</div></div>
+              </div>
+            ))}
+            {!workspace.analytics.length && <div className="p-10 text-center text-sm text-slate-400">A atividade aparecerá quando a página receber acessos.</div>}
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

@@ -1,29 +1,43 @@
-import { authMiddleware } from '@clerk/nextjs';
+import { NextRequest, NextResponse } from 'next/server';
 
-// This example protects all routes including api/trpc routes
-// Please edit this to allow other routes to be public as needed.
-// See https://clerk.com/docs/nextjs/middleware for more information about configuring your middleware
+export function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+  const isAdminPage = pathname.startsWith('/admin') && pathname !== '/admin/login';
+  const isAdminApi = pathname.startsWith('/api/admin') && pathname !== '/api/admin/login';
+  const isClientPage = pathname.startsWith('/dashboard');
+  const isClientApi = pathname.startsWith('/api/client') && pathname !== '/api/client/login';
+  const isUpload = pathname === '/api/upload';
 
-export default authMiddleware({
-  publicRoutes: [
-    '/',
-    '/sign-in',
-    '/sign-up',
-    '/api/public/(.*)',
-    '/((?!dashboard|api/dashboard).*)',
-  ],
-  ignoredRoutes: ['/api/public/(.*)'],
-});
+  const hasAdminSession = Boolean(request.cookies.get('orbit_admin_session')?.value);
+  const hasClientSession = Boolean(request.cookies.get('orbit_client_session')?.value);
+
+  if (isAdminPage && !hasAdminSession) {
+    const loginUrl = new URL('/admin/login', request.url);
+    loginUrl.searchParams.set('next', pathname);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  if (isAdminApi && !hasAdminSession) {
+    return NextResponse.json({ error: 'Não autorizado.' }, { status: 401 });
+  }
+
+  if (isClientPage && !hasClientSession) {
+    const loginUrl = new URL('/cliente/login', request.url);
+    loginUrl.searchParams.set('next', pathname);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  if (isClientApi && !hasClientSession) {
+    return NextResponse.json({ error: 'Não autorizado.' }, { status: 401 });
+  }
+
+  if (isUpload && !hasAdminSession && !hasClientSession) {
+    return NextResponse.json({ error: 'Não autorizado.' }, { status: 401 });
+  }
+
+  return NextResponse.next();
+}
 
 export const config = {
-  matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public folder
-     */
-    '/((?!_next/static|_next/image|favicon.ico|public).*)',
-  ],
+  matcher: ['/admin/:path*', '/dashboard/:path*', '/api/admin/:path*', '/api/client/:path*', '/api/upload'],
 };

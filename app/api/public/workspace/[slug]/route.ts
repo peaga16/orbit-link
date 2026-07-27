@@ -8,7 +8,7 @@ export async function GET(
   try {
     const { slug } = params;
 
-    const workspace = await prisma.workspace.findUnique({
+    const workspace = await (prisma.workspace as any).findUnique({
       where: { slug },
       select: {
         id: true,
@@ -21,6 +21,7 @@ export async function GET(
         primaryColor: true,
         secondaryColor: true,
         backgroundColor: true,
+        backgroundImage: true,
         fontFamily: true,
         showBranding: true,
       },
@@ -63,11 +64,20 @@ export async function GET(
       },
     });
 
-    // Increment view count
-    await prisma.workspace.update({
-      where: { id: workspace.id },
-      data: { views: { increment: 1 } },
-    });
+    await prisma.$transaction([
+      prisma.workspace.update({
+        where: { id: workspace.id },
+        data: { views: { increment: 1 } },
+      }),
+      prisma.analytics.create({
+        data: {
+          workspaceId: workspace.id,
+          eventType: 'view',
+          referrer: request.headers.get('referer'),
+          userAgent: request.headers.get('user-agent'),
+        },
+      }),
+    ]);
 
     return NextResponse.json({
       workspace,

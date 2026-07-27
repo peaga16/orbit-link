@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,208 +8,178 @@ datasource db {
 }
 
 model User {
-  id        String     @id @default(cuid())
-  clerkId   String     @unique
-  email     String     @unique
-  name      String?
-  avatar    String?
-  plan      String     @default("starter") // starter, pro, premium
+  id          String      @id @default(cuid())
+  clerkId     String      @unique
+  email       String      @unique
+  name        String?
+  avatar      String?
+  plan        String      @default("starter")
   planExpires DateTime?
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 
   workspaces Workspace[]
+
   @@map("users")
 }
 
 model Workspace {
-  id        String     @id @default(cuid())
-  userId    String
-  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  slug      String     @unique
-  name      String
-  title     String?
-  description String?
-  
-  // Design
-  theme     String     @default("modern") // modern, dark, minimal, vibrant
-  primaryColor String  @default("#FF0000")
-  secondaryColor String @default("#000000")
-  backgroundColor String @default("#FFFFFF")
-  fontFamily String    @default("Inter")
-  
-  // Assets
-  logo      String?
-  headerImage String?
-  favicon   String?
-  
-  // Branding
-  showBranding Boolean @default(true)
-  customDomain String? @unique
-  
-  // Analytics
-  views     Int        @default(0)
-  clicks    Int        @default(0)
-  
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  id              String      @id @default(cuid())
+  userId          String
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  slug            String      @unique
+  name            String
+  title           String?
+  description     String?
+  theme           String      @default("modern")
+  primaryColor    String      @default("#22D3EE")
+  secondaryColor  String      @default("#7C3AED")
+  backgroundColor String      @default("#050608")
+  backgroundImage String?
+  fontFamily      String      @default("Tecna")
+  logo            String?
+  headerImage     String?
+  favicon         String?
+  showBranding    Boolean     @default(true)
+  customDomain    String?     @unique
+  clientEmail     String?     @unique
+  clientPasswordHash String?
+  views           Int         @default(0)
+  clicks          Int         @default(0)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
 
-  links     Link[]
-  analytics Analytics[]
-  nfcTags   NFCTag[]
-  pixQRCodes PixQRCode[]
-  forms     Form[]
-  
+  links       Link[]
+  analytics   Analytics[]
+  nfcTags     NFCTag[]
+  pixQRCodes  PixQRCode[]
+  forms       Form[]
+
   @@index([userId])
   @@map("workspaces")
 }
 
 model Link {
-  id        String     @id @default(cuid())
+  id          String      @id @default(cuid())
   workspaceId String
-  workspace Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  
-  title     String
-  url       String
+  workspace   Workspace   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  title       String
+  url         String
   description String?
-  icon      String?
-  
-  order     Int        @default(0)
-  isActive  Boolean    @default(true)
-  
-  // Analytics
-  clicks    Int        @default(0)
-  
-  // Styling
-  style     String     @default("button") // button, card, minimal, icon
-  
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  icon        String?
+  order       Int         @default(0)
+  isActive    Boolean     @default(true)
+  clicks      Int         @default(0)
+  style       String      @default("button")
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 
   analytics Analytics[]
-  
+
   @@index([workspaceId])
   @@map("links")
 }
 
 model Analytics {
-  id        String     @id @default(cuid())
+  id          String    @id @default(cuid())
   workspaceId String
-  workspace Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  
-  linkId    String?
-  link      Link?      @relation(fields: [linkId], references: [id], onDelete: Cascade)
-  
-  eventType String     // view, click
-  referrer  String?
-  userAgent String?
-  ip        String?
-  country   String?
-  city      String?
-  
-  createdAt DateTime   @default(now())
-  
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  linkId      String?
+  link        Link?     @relation(fields: [linkId], references: [id], onDelete: Cascade)
+  eventType   String
+  referrer    String?
+  userAgent   String?
+  ip          String?
+  country     String?
+  city        String?
+  createdAt   DateTime  @default(now())
+
   @@index([workspaceId])
   @@index([linkId])
   @@map("analytics")
 }
 
 model PixQRCode {
-  id        String     @id @default(cuid())
+  id          String    @id @default(cuid())
   workspaceId String
-  workspace Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  
-  title     String
-  pixKey    String     // CPF, CNPJ, Email ou Chave aleatória
-  amount    Float?
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  title       String
+  pixKey      String
+  amount      Float?
   description String?
-  
-  clicks    Int        @default(0)
-  isActive  Boolean    @default(true)
-  
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  
+  clicks      Int       @default(0)
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
   @@index([workspaceId])
   @@map("pix_qrcodes")
 }
 
 model NFCTag {
-  id        String     @id @default(cuid())
+  id          String    @id @default(cuid())
   workspaceId String
-  workspace Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  
-  tagId     String     @unique
-  name      String
-  url       String
-  
-  clicks    Int        @default(0)
-  isActive  Boolean    @default(true)
-  
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  tagId       String    @unique
+  name        String
+  url         String
+  clicks      Int       @default(0)
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
   @@index([workspaceId])
   @@map("nfc_tags")
 }
 
 model Form {
-  id        String     @id @default(cuid())
+  id          String           @id @default(cuid())
   workspaceId String
-  workspace Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  
-  name      String
-  title     String?
+  workspace   Workspace        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  name        String
+  title       String?
   description String?
-  
-  fields    FormField[]
+  fields      FormField[]
   submissions FormSubmission[]
-  
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
   @@index([workspaceId])
   @@map("forms")
 }
 
 model FormField {
-  id        String     @id @default(cuid())
-  formId    String
-  form      Form       @relation(fields: [formId], references: [id], onDelete: Cascade)
-  
-  name      String
-  label     String
-  type      String     // text, email, phone, textarea
-  required  Boolean    @default(true)
-  order     Int        @default(0)
-  
+  id       String  @id @default(cuid())
+  formId   String
+  form     Form    @relation(fields: [formId], references: [id], onDelete: Cascade)
+  name     String
+  label    String
+  type     String
+  required Boolean @default(true)
+  order    Int     @default(0)
+
   @@index([formId])
   @@map("form_fields")
 }
 
 model FormSubmission {
-  id        String     @id @default(cuid())
+  id        String   @id @default(cuid())
   formId    String
-  form      Form       @relation(fields: [formId], references: [id], onDelete: Cascade)
-  
-  data      Json       // { fieldName: value }
-  
-  createdAt DateTime   @default(now())
-  
+  form      Form     @relation(fields: [formId], references: [id], onDelete: Cascade)
+  data      Json
+  createdAt DateTime @default(now())
+
   @@index([formId])
   @@map("form_submissions")
 }
 
 model Template {
-  id        String     @id @default(cuid())
-  name      String     @unique
+  id          String   @id @default(cuid())
+  name        String   @unique
   description String?
-  preview   String?
-  
-  config    Json       // { theme, colors, layout }
-  
-  createdAt DateTime   @default(now())
-  
+  preview     String?
+  config      Json
+  createdAt   DateTime @default(now())
+
   @@map("templates")
 }

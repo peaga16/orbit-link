@@ -1,35 +1,32 @@
-import Link from 'next/link';
-import { SignUpButton } from '@clerk/nextjs';
+import { ModernLanding, LandingClient } from '@/components/landing/modern-landing';
+import { prisma } from '@/lib/prisma';
 
-export default function Home() {
-  return (
-    <div className="min-h-screen bg-white">
-      <nav className="border-b">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-          <Link href="/" className="text-2xl font-bold">
-            LinkFlow
-          </Link>
-          <SignUpButton>
-            <button className="bg-red-600 text-white px-6 py-2 rounded-lg">
-              Começar
-            </button>
-          </SignUpButton>
-        </div>
-      </nav>
+export const dynamic = 'force-dynamic';
 
-      <main className="max-w-7xl mx-auto px-4 py-20 text-center">
-        <h1 className="text-5xl font-bold mb-4">
-          LinkFlow - SaaS de Link in Bio
-        </h1>
-        <p className="text-xl text-gray-600 mb-8">
-          Plataforma para criar páginas com links, QR Pix e analytics.
-        </p>
-        <SignUpButton>
-          <button className="bg-red-600 text-white px-8 py-3 rounded-lg text-lg">
-            Começar Agora
-          </button>
-        </SignUpButton>
-      </main>
-    </div>
-  );
+export default async function HomePage() {
+  const clients = await (prisma.workspace as any).findMany({
+    orderBy: { createdAt: 'asc' },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      title: true,
+      description: true,
+      primaryColor: true,
+      secondaryColor: true,
+      backgroundColor: true,
+      backgroundImage: true,
+      logo: true,
+      headerImage: true,
+      views: true,
+      clicks: true,
+      links: {
+        where: { isActive: true },
+        orderBy: { order: 'asc' },
+        select: { id: true, title: true, icon: true },
+      },
+    },
+  }).catch(() => []) as LandingClient[];
+
+  return <ModernLanding clients={clients} />;
 }

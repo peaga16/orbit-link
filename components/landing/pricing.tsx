@@ -1,170 +1,49 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Check } from 'lucide-react';
-import { SignUpButton } from '@clerk/nextjs';
+import { Check, Zap } from 'lucide-react';
+import Link from 'next/link';
 
-const plans = [
-  {
-    name: 'Iniciante',
-    price: 29.90,
-    description: 'Perfeito para começar',
-    popular: false,
-    features: [
-      'Links ilimitados',
-      'QR Code Pix',
-      'Analytics básico',
-      '1 formulário',
-      'Tema personalizado',
-      'Suporte por email',
-      'Até 10 mil visualizações/mês',
-    ],
-  },
-  {
-    name: 'Profissional',
-    price: 49.90,
-    description: 'Para pequenos negócios',
-    popular: true,
-    features: [
-      'Tudo do plano Iniciante',
-      'NFC Tags (5)',
-      '5 formulários',
-      'Analytics avançado',
-      'Integrações (WhatsApp, Instagram)',
-      'Suporte prioritário',
-      'Até 100 mil visualizações/mês',
-      'Catálogo de produtos',
-    ],
-  },
-  {
-    name: 'Premium',
-    price: 89.90,
-    description: 'Para empresas',
-    popular: false,
-    features: [
-      'Tudo do plano Profissional',
-      'NFC Tags (25)',
-      'Formulários ilimitados',
-      'Agenda/Agendamentos',
-      'Integrações ilimitadas',
-      'Domínio customizado',
-      'Visualizações ilimitadas',
-      'Suporte 24/7',
-      'API access',
-    ],
-  },
-];
+const plan = {
+  name: 'Plano Orbit',
+  price: 49.9,
+  description: 'Um preço fixo com todos os recursos essenciais.',
+  features: [
+    'Página profissional criada e publicada',
+    'Painel exclusivo do cliente',
+    'Links, imagens e Pix gerenciáveis',
+    'Imagem de fundo personalizada',
+    'Métricas reais de visitas e cliques',
+    'Diretório público de clientes',
+  ],
+};
 
 export function PricingPlans() {
   return (
-    <section id="pricing" className="py-20 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-16"
-        >
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-            Planos e Preços
-          </h2>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Escolha o plano perfeito para suas necessidades
-          </p>
+    <section id="pricing" className="relative overflow-hidden bg-[#050608] py-24 text-white">
+      <div className="pointer-events-none absolute inset-0 fine-grid opacity-40" />
+      <div className="pointer-events-none absolute left-1/2 top-1/2 h-[520px] w-[720px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-400/10 blur-[150px]" />
+      <div className="relative mx-auto max-w-4xl px-4 sm:px-6">
+        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="text-center">
+          <div className="text-xs font-bold uppercase tracking-[0.28em] text-cyan-300">Um único plano</div>
+          <h2 className="mt-4 text-4xl font-bold tracking-tight sm:text-5xl">Simples, completo e com preço fixo.</h2>
+          <p className="mx-auto mt-5 max-w-2xl text-white/50">Sem níveis ou recursos bloqueados. O cliente recebe a página pronta e acesso ao painel.</p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {plans.map((plan, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              className={`relative rounded-2xl p-8 transition-all duration-300 ${
-                plan.popular
-                  ? 'ring-2 ring-red-600 bg-red-50 transform scale-105'
-                  : 'border border-gray-200 bg-white hover:border-gray-300 hover:shadow-lg'
-              }`}
-            >
-              {plan.popular && (
-                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                  <span className="bg-red-600 text-white px-4 py-1 rounded-full text-sm font-bold">
-                    Mais Popular
-                  </span>
-                </div>
-              )}
-
-              {/* Plan Header */}
-              <div className="mb-8">
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                  {plan.name}
-                </h3>
-                <p className="text-gray-600 text-sm mb-4">
-                  {plan.description}
-                </p>
-                <div className="flex items-baseline">
-                  <span className="text-4xl font-bold text-gray-900">
-                    R$ {plan.price.toFixed(2)}
-                  </span>
-                  <span className="text-gray-600 ml-2">/mês</span>
-                </div>
+        <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.55 }} className="mx-auto mt-12 max-w-3xl rounded-[30px] border border-cyan-300/20 bg-gradient-to-br from-cyan-300/[0.09] via-white/[0.035] to-violet-500/[0.08] p-1 shadow-glow">
+          <div className="rounded-[26px] border border-white/10 bg-[#080a0e]/95 p-7 sm:p-10">
+            <div className="grid gap-9 lg:grid-cols-[.85fr_1.15fr] lg:items-center">
+              <div>
+                <div className="inline-flex items-center gap-2 rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1.5 text-xs font-semibold text-cyan-200"><Zap size={14} /> {plan.name}</div>
+                <div className="mt-6 flex items-end gap-2"><span className="text-5xl font-black">R$ {plan.price.toFixed(2).replace('.', ',')}</span><span className="pb-1 text-sm text-white/40">/mês</span></div>
+                <p className="mt-4 text-sm leading-6 text-white/45">{plan.description}</p>
+                <Link href="/#contato" className="orbit-btn-primary mt-7 w-full sm:w-auto">Quero minha página</Link>
               </div>
-
-              {/* Features */}
-              <div className="space-y-4 mb-8">
-                {plan.features.map((feature, i) => (
-                  <div key={i} className="flex items-start gap-3">
-                    <div className="flex-shrink-0 mt-0.5">
-                      <Check
-                        size={20}
-                        className={
-                          plan.popular
-                            ? 'text-red-600'
-                            : 'text-gray-400'
-                        }
-                      />
-                    </div>
-                    <span className="text-gray-700 text-sm">
-                      {feature}
-                    </span>
-                  </div>
-                ))}
+              <div className="grid gap-3">
+                {plan.features.map((feature) => <div key={feature} className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.035] px-4 py-3 text-sm text-white/70"><span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-cyan-300/15 text-cyan-300"><Check size={14} /></span>{feature}</div>)}
               </div>
-
-              {/* CTA Button */}
-              <SignUpButton mode="modal">
-                <button
-                  className={`w-full py-3 rounded-lg font-bold transition-all duration-300 ${
-                    plan.popular
-                      ? 'bg-red-600 hover:bg-red-700 text-white'
-                      : 'border border-gray-300 text-gray-900 hover:bg-gray-50'
-                  }`}
-                >
-                  Começar Agora
-                </button>
-              </SignUpButton>
-
-              {/* Billing Note */}
-              <p className="text-center text-xs text-gray-500 mt-4">
-                Desconto de 2 meses no plano anual
-              </p>
-            </motion.div>
-          ))}
-        </div>
-
-        {/* FAQ */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="mt-16 text-center"
-        >
-          <p className="text-gray-600 mb-4">
-            Precisa de uma solução customizada?{' '}
-            <a href="#" className="text-red-600 hover:text-red-700 font-semibold">
-              Entre em contato conosco
-            </a>
-          </p>
+            </div>
+          </div>
         </motion.div>
       </div>
     </section>
