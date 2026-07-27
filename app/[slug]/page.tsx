@@ -33,6 +33,7 @@ const getPublicClient = unstable_cache(
           url: true,
           description: true,
           icon: true,
+          style: true,
         },
       },
       pixQRCodes: {

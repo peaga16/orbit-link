@@ -7,6 +7,7 @@ export type ClientLinkInput = {
   url: string;
   description?: string;
   icon?: string;
+  style?: 'compact' | 'artwork';
   isActive?: boolean;
 };
 
@@ -96,6 +97,7 @@ export function parseClientPayload(body: any): ClientPayload {
           url: normalizeUrl(item?.url),
           description: optionalText(item?.description, 300) || undefined,
           icon: normalizeUrl(item?.icon) || undefined,
+          style: item?.style === 'artwork' ? 'artwork' : 'compact',
           isActive: item?.isActive !== false,
         }))
         .filter((item: ClientLinkInput) => item.title && item.url)
@@ -182,6 +184,7 @@ export async function syncWorkspaceItems(
       url: link.url,
       description: link.description,
       icon: link.icon,
+      style: link.style === 'artwork' ? 'artwork' : 'compact',
       isActive: link.isActive !== false,
       order,
     };

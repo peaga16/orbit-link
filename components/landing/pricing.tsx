@@ -6,7 +6,7 @@ import Link from 'next/link';
 
 const plan = {
   name: 'Plano Orbit',
-  price: 49.9,
+  price: 29.9,
   description: 'Um preço fixo com todos os recursos essenciais.',
   features: [
     'Página profissional criada e publicada',

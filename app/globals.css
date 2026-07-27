@@ -186,3 +186,79 @@ select {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Página pública: alternância clara/escura sem transformar toda a rota em Client Component. */
+.orbit-public-page {
+  background-color: var(--orbit-page-bg);
+  color: var(--orbit-page-text);
+  transition: background-color .25s ease, color .25s ease;
+}
+
+.orbit-public-page[data-appearance='dark'] {
+  --orbit-page-bg: #07080b !important;
+  --orbit-page-text: #ffffff !important;
+  --orbit-page-muted: rgba(255, 255, 255, .58) !important;
+  --orbit-page-panel: rgba(8, 10, 14, .82) !important;
+  --orbit-page-border: rgba(255, 255, 255, .12) !important;
+  color-scheme: dark;
+}
+
+.orbit-public-page[data-appearance='light'] {
+  color-scheme: light;
+}
+
+.orbit-public-panel,
+.orbit-public-subpanel,
+.orbit-public-chip,
+.orbit-public-control {
+  border: 1px solid var(--orbit-page-border);
+  background-color: var(--orbit-page-panel);
+}
+
+.orbit-public-subpanel {
+  background-color: color-mix(in srgb, var(--orbit-page-panel) 88%, transparent);
+}
+
+.orbit-public-muted {
+  color: var(--orbit-page-muted);
+}
+
+.orbit-public-control {
+  display: inline-flex;
+  height: 36px;
+  width: 36px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  color: var(--orbit-page-text);
+  backdrop-filter: blur(14px);
+  transition: transform .2s ease, background-color .2s ease, border-color .2s ease;
+}
+
+.orbit-public-control:hover {
+  transform: translateY(-1px);
+  background-color: color-mix(in srgb, var(--orbit-page-panel) 76%, var(--orbit-page-text) 8%);
+}
+
+.orbit-public-page[data-appearance='dark'] .orbit-public-bg-shade {
+  background: rgba(0, 0, 0, .64);
+}
+
+.orbit-public-page[data-appearance='dark'] .orbit-public-bg-gradient {
+  background: linear-gradient(to bottom, rgba(0, 0, 0, .22), rgba(0, 0, 0, .34), rgba(0, 0, 0, .82));
+}
+
+.orbit-public-page[data-appearance='light'] .orbit-public-bg-shade {
+  background: rgba(255, 255, 255, .24);
+}
+
+.orbit-public-page[data-appearance='light'] .orbit-public-bg-gradient {
+  background: linear-gradient(to bottom, rgba(255, 255, 255, .06), rgba(255, 255, 255, .16), rgba(255, 255, 255, .55));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .orbit-public-page,
+  .orbit-public-control {
+    transition: none;
+  }
+}

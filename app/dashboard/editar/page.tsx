@@ -39,6 +39,7 @@ export default async function EditOwnPage() {
       url: link.url,
       description: link.description || '',
       icon: link.icon || '',
+      style: link.style === 'artwork' ? 'artwork' : 'compact',
       isActive: link.isActive,
     })),
     pixQRCodes: workspace.pixQRCodes.map((pix) => ({

@@ -27,6 +27,7 @@ type LinkItem = {
   url: string;
   description: string;
   icon: string;
+  style: 'compact' | 'artwork';
   isActive: boolean;
 };
 
@@ -78,8 +79,8 @@ function createBlankData(): ClientFormData {
     clientEmail: '',
     clientPassword: '',
     links: [
-      { title: 'Instagram', url: 'https://instagram.com/', description: 'Acompanhe nosso trabalho', icon: '', isActive: true },
-      { title: 'WhatsApp', url: 'https://wa.me/55', description: 'Fale diretamente conosco', icon: '', isActive: true },
+      { title: 'Instagram', url: 'https://instagram.com/', description: 'Acompanhe nosso trabalho', icon: '', style: 'compact', isActive: true },
+      { title: 'WhatsApp', url: 'https://wa.me/55', description: 'Fale diretamente conosco', icon: '', style: 'compact', isActive: true },
     ],
     pixQRCodes: [],
   };
@@ -151,7 +152,7 @@ export function ClientForm({
   function addLink() {
     setForm((current) => ({
       ...current,
-      links: [...current.links, { title: '', url: '', description: '', icon: '', isActive: true }],
+      links: [...current.links, { title: '', url: '', description: '', icon: '', style: 'compact', isActive: true }],
     }));
   }
 
@@ -357,16 +358,38 @@ export function ClientForm({
                     </div>
                   </div>
                   <div className="grid gap-4 sm:grid-cols-2">
-                    <input className="field-input" value={link.title} onChange={(e) => updateLink(index, 'title', e.target.value)} placeholder="Título do link" />
+                    <div className="sm:col-span-2">
+                      <label className="field-label">Formato do link</label>
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <button
+                          type="button"
+                          onClick={() => updateLink(index, 'style', 'compact')}
+                          className={`rounded-xl border p-4 text-left transition ${link.style !== 'artwork' ? 'border-red-300 bg-red-50 ring-2 ring-red-100' : 'border-slate-200 bg-white hover:border-slate-300'}`}
+                        >
+                          <div className="text-sm font-bold text-slate-900">Foto pequena + texto</div>
+                          <div className="mt-1 text-xs leading-5 text-slate-500">Exibe uma miniatura ao lado do título e da descrição.</div>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => updateLink(index, 'style', 'artwork')}
+                          className={`rounded-xl border p-4 text-left transition ${link.style === 'artwork' ? 'border-red-300 bg-red-50 ring-2 ring-red-100' : 'border-slate-200 bg-white hover:border-slate-300'}`}
+                        >
+                          <div className="text-sm font-bold text-slate-900">Arte completa</div>
+                          <div className="mt-1 text-xs leading-5 text-slate-500">A imagem ocupa todo o botão e nenhum texto aparece sobre ela.</div>
+                        </button>
+                      </div>
+                    </div>
+                    <input className="field-input" value={link.title} onChange={(e) => updateLink(index, 'title', e.target.value)} placeholder={link.style === 'artwork' ? 'Nome interno do link' : 'Título do link'} />
                     <input className="field-input" value={link.url} onChange={(e) => updateLink(index, 'url', e.target.value)} placeholder="https://..." />
-                    <input className="field-input sm:col-span-2" value={link.description} onChange={(e) => updateLink(index, 'description', e.target.value)} placeholder="Descrição opcional" />
+                    <input className="field-input sm:col-span-2" value={link.description} onChange={(e) => updateLink(index, 'description', e.target.value)} placeholder={link.style === 'artwork' ? 'Descrição interna opcional' : 'Descrição opcional'} />
                     <div className="sm:col-span-2">
                       <ImageUpload
-                        label="Imagem do link"
+                        label={link.style === 'artwork' ? 'Arte completa do botão' : 'Imagem pequena do link'}
                         value={link.icon}
                         onChange={(value) => updateLink(index, 'icon', value)}
                         folder={`${form.slug || 'cliente'}/links`}
-                        previewClassName="h-44"
+                        help={link.style === 'artwork' ? 'Use uma arte horizontal pronta, de preferência na proporção 16:7. O título e a descrição não serão exibidos.' : 'Essa imagem aparece em miniatura ao lado do texto.'}
+                        previewClassName={link.style === 'artwork' ? 'aspect-[16/7]' : 'h-44'}
                       />
                     </div>
                   </div>
@@ -426,7 +449,15 @@ export function ClientForm({
                   <p className="mx-auto mt-3 max-w-xs text-xs leading-5 opacity-50">{form.description || 'A descrição aparecerá aqui.'}</p>
                 </div>
                 <div className="mt-6 space-y-3">
-                  {form.links.filter((link) => link.isActive && link.title).slice(0, 5).map((link, index) => (
+                  {form.links.filter((link) => link.isActive && link.title).slice(0, 5).map((link, index) => link.style === 'artwork' ? (
+                    <div key={link.id || index} className="relative aspect-[16/7] overflow-hidden rounded-xl border border-white/10 bg-white/10 shadow-sm">
+                      {link.icon ? (
+                        <RemoteImage src={link.icon} alt={link.title} fill width={760} height={332} sizes="380px" quality={60} className="object-cover" />
+                      ) : (
+                        <div className="flex h-full items-center justify-center"><Link2 size={22} className="opacity-50" /></div>
+                      )}
+                    </div>
+                  ) : (
                     <div key={link.id || index} className="flex items-center justify-between gap-3 rounded-xl px-4 py-3.5 text-sm font-semibold shadow-sm" style={{ background: `linear-gradient(135deg, ${form.primaryColor}, ${form.secondaryColor})`, color: '#FFFFFF' }}>
                       <div className="flex min-w-0 items-center gap-3">
                         <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-white/15">

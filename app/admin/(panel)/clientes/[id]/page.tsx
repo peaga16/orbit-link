@@ -38,6 +38,7 @@ export default async function EditClientPage({ params }: { params: { id: string 
       url: link.url,
       description: link.description || '',
       icon: link.icon || '',
+      style: link.style === 'artwork' ? 'artwork' : 'compact',
       isActive: link.isActive,
     })),
     pixQRCodes: client.pixQRCodes.map((pix) => ({

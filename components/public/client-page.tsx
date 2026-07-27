@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react';
 import Link from 'next/link';
 import {
   ArrowLeft,
@@ -8,6 +9,7 @@ import {
   QrCode,
 } from 'lucide-react';
 import { CopyPixButton } from '@/components/public/copy-pix-button';
+import { PageControls } from '@/components/public/page-controls';
 import { ViewTracker } from '@/components/public/view-tracker';
 import { QRCodeComponent } from '@/components/ui/qrcode';
 import { RemoteImage } from '@/components/ui/remote-image';
@@ -34,6 +36,7 @@ type PublicClient = {
     url: string;
     description: string | null;
     icon: string | null;
+    style: string;
   }>;
   pixQRCodes: Array<{
     id: string;
@@ -43,6 +46,8 @@ type PublicClient = {
     description: string | null;
   }>;
 };
+
+type OrbitPageStyle = CSSProperties & Record<`--${string}`, string | number>;
 
 function contrastColor(hexColor: string) {
   const hex = hexColor.replace('#', '');
@@ -54,19 +59,32 @@ function contrastColor(hexColor: string) {
 
 export function ClientPublicPage({ client }: { client: PublicClient }) {
   const hasBackgroundImage = Boolean(client.backgroundImage);
-  const textColor = hasBackgroundImage ? '#FFFFFF' : contrastColor(client.backgroundColor);
-  const mutedColor = textColor === '#FFFFFF' ? 'rgba(255,255,255,.58)' : 'rgba(17,17,17,.58)';
-  const panelColor = hasBackgroundImage
-    ? 'rgba(6,8,12,.72)'
-    : textColor === '#FFFFFF'
+  const lightTextColor = hasBackgroundImage ? '#111111' : contrastColor(client.backgroundColor);
+  const lightMutedColor = lightTextColor === '#FFFFFF' ? 'rgba(255,255,255,.58)' : 'rgba(17,17,17,.58)';
+  const lightPanelColor = hasBackgroundImage
+    ? 'rgba(255,255,255,.86)'
+    : lightTextColor === '#FFFFFF'
       ? 'rgba(255,255,255,.065)'
       : 'rgba(255,255,255,.80)';
-  const borderColor = textColor === '#FFFFFF' ? 'rgba(255,255,255,.12)' : 'rgba(17,17,17,.10)';
+  const lightBorderColor = lightTextColor === '#FFFFFF' ? 'rgba(255,255,255,.12)' : 'rgba(17,17,17,.10)';
+  const pageId = `orbit-public-${client.id}`;
+  const initialAppearance = client.theme === 'dark' ? 'dark' : 'light';
+
+  const pageStyle: OrbitPageStyle = {
+    fontFamily: client.fontFamily === 'Tecna' ? 'var(--font-tecna)' : client.fontFamily,
+    '--orbit-page-bg': client.backgroundColor,
+    '--orbit-page-text': lightTextColor,
+    '--orbit-page-muted': lightMutedColor,
+    '--orbit-page-panel': lightPanelColor,
+    '--orbit-page-border': lightBorderColor,
+  };
 
   return (
     <main
-      className="relative min-h-screen overflow-hidden px-4 py-7 sm:px-6 sm:py-12"
-      style={{ backgroundColor: client.backgroundColor, color: textColor, fontFamily: client.fontFamily === 'Tecna' ? 'var(--font-tecna)' : client.fontFamily }}
+      id={pageId}
+      data-appearance={initialAppearance}
+      className="orbit-public-page relative min-h-screen overflow-hidden px-4 py-7 sm:px-6 sm:py-12"
+      style={pageStyle}
     >
       <ViewTracker workspaceId={client.id} />
 
@@ -85,8 +103,8 @@ export function ClientPublicPage({ client }: { client: PublicClient }) {
               className="object-cover"
             />
           </div>
-          <div className="pointer-events-none fixed inset-0 bg-black/65" />
-          <div className="pointer-events-none fixed inset-0 bg-gradient-to-b from-black/25 via-black/35 to-black/80" />
+          <div className="orbit-public-bg-shade pointer-events-none fixed inset-0" />
+          <div className="orbit-public-bg-gradient pointer-events-none fixed inset-0" />
         </>
       )}
       <div className="pointer-events-none fixed inset-0 fine-grid opacity-40" />
@@ -94,12 +112,15 @@ export function ClientPublicPage({ client }: { client: PublicClient }) {
       <div className="pointer-events-none fixed -bottom-40 -right-40 h-96 w-96 rounded-full blur-[90px] sm:blur-[120px]" style={{ backgroundColor: client.secondaryColor, opacity: .18 }} />
 
       <div className="relative mx-auto max-w-xl">
-        <div className="mb-4 flex items-center justify-between">
-          <Link href="/" className="inline-flex items-center gap-2 rounded-full px-3 py-2 text-xs font-semibold backdrop-blur-lg" style={{ backgroundColor: panelColor, border: `1px solid ${borderColor}` }}><ArrowLeft size={14} /> Orbit</Link>
-          <div className="inline-flex items-center gap-2 rounded-full px-3 py-2 text-[10px] font-semibold backdrop-blur-lg" style={{ backgroundColor: panelColor, border: `1px solid ${borderColor}`, color: mutedColor }}><Eye size={13} /> {client.views.toLocaleString('pt-BR')} visitas</div>
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <Link href="/" className="orbit-public-chip inline-flex items-center gap-2 rounded-full px-3 py-2 text-xs font-semibold backdrop-blur-lg"><ArrowLeft size={14} /> Orbit</Link>
+          <div className="flex items-center gap-2">
+            <div className="orbit-public-chip orbit-public-muted hidden items-center gap-2 rounded-full px-3 py-2 text-[10px] font-semibold backdrop-blur-lg sm:inline-flex"><Eye size={13} /> {client.views.toLocaleString('pt-BR')} visitas</div>
+            <PageControls pageId={pageId} slug={client.slug} pageName={client.name} initialAppearance={initialAppearance} />
+          </div>
         </div>
 
-        <section className="overflow-hidden rounded-[30px] shadow-[0_30px_80px_rgba(0,0,0,.32)] backdrop-blur-lg" style={{ backgroundColor: panelColor, border: `1px solid ${borderColor}` }}>
+        <section className="orbit-public-panel overflow-hidden rounded-[30px] shadow-[0_30px_80px_rgba(0,0,0,.32)] backdrop-blur-lg">
           <div className="relative h-44 overflow-hidden" style={!client.headerImage ? { background: `linear-gradient(135deg, ${client.primaryColor}, ${client.secondaryColor})` } : undefined}>
             {client.headerImage && (
               <RemoteImage
@@ -119,7 +140,7 @@ export function ClientPublicPage({ client }: { client: PublicClient }) {
           </div>
 
           <div className="relative px-5 pb-7 sm:px-7">
-            <div className="relative mx-auto -mt-14 flex h-28 w-28 items-center justify-center overflow-hidden rounded-[28px] border-[6px] text-4xl font-black text-white shadow-2xl" style={{ borderColor: hasBackgroundImage ? '#0A0C10' : client.backgroundColor, backgroundColor: client.primaryColor }}>
+            <div className="relative mx-auto -mt-14 flex h-28 w-28 items-center justify-center overflow-hidden rounded-[28px] border-[6px] text-4xl font-black text-white shadow-2xl" style={{ borderColor: 'var(--orbit-page-bg)', backgroundColor: client.primaryColor }}>
               {client.logo ? (
                 <RemoteImage src={client.logo} alt={client.name} fill width={224} height={224} sizes="112px" quality={75} className="object-cover" />
               ) : client.name.charAt(0)}
@@ -128,11 +149,39 @@ export function ClientPublicPage({ client }: { client: PublicClient }) {
             <div className="mt-5 text-center">
               <h1 className="text-3xl font-black tracking-tight">{client.name}</h1>
               {client.title && <p className="mt-2 text-sm font-semibold" style={{ color: client.primaryColor }}>{client.title}</p>}
-              {client.description && <p className="mx-auto mt-4 max-w-md text-sm leading-6" style={{ color: mutedColor }}>{client.description}</p>}
+              {client.description && <p className="orbit-public-muted mx-auto mt-4 max-w-md text-sm leading-6">{client.description}</p>}
             </div>
 
             <div className="mt-7 space-y-3">
-              {client.links.map((link) => (
+              {client.links.map((link) => link.style === 'artwork' ? (
+                <a
+                  key={link.id}
+                  href={`/api/public/link/${link.id}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label={link.title}
+                  className="group relative block aspect-[16/7] overflow-hidden rounded-2xl border border-white/10 bg-black/10 shadow-md transition duration-200 hover:-translate-y-0.5 hover:shadow-xl"
+                >
+                  {link.icon ? (
+                    <RemoteImage
+                      src={link.icon}
+                      alt={link.title}
+                      fill
+                      width={1200}
+                      height={525}
+                      sizes="(max-width: 640px) calc(100vw - 68px), 520px"
+                      quality={74}
+                      className="object-cover transition duration-300 group-hover:scale-[1.015]"
+                    />
+                  ) : (
+                    <div className="flex h-full items-center justify-center text-white" style={{ background: `linear-gradient(135deg, ${client.primaryColor}, ${client.secondaryColor})` }}>
+                      <Link2 size={30} className="opacity-70" />
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-black/0 transition group-hover:bg-black/5" />
+                  <span className="sr-only">{link.title}</span>
+                </a>
+              ) : (
                 <a
                   key={link.id}
                   href={`/api/public/link/${link.id}`}
@@ -152,20 +201,20 @@ export function ClientPublicPage({ client }: { client: PublicClient }) {
                   <ChevronRight size={18} className="shrink-0 opacity-60 transition group-hover:translate-x-1" />
                 </a>
               ))}
-              {!client.links.length && <div className="rounded-2xl border border-dashed p-8 text-center text-sm" style={{ borderColor, color: mutedColor }}>Nenhum link disponível no momento.</div>}
+              {!client.links.length && <div className="orbit-public-muted rounded-2xl border border-dashed p-8 text-center text-sm" style={{ borderColor: 'var(--orbit-page-border)' }}>Nenhum link disponível no momento.</div>}
             </div>
 
             {client.pixQRCodes.length > 0 && (
               <div className="mt-7 space-y-4">
-                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em]" style={{ color: mutedColor }}><QrCode size={15} /> Pagamento</div>
+                <div className="orbit-public-muted flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em]"><QrCode size={15} /> Pagamento</div>
                 {client.pixQRCodes.map((pix) => (
-                  <div key={pix.id} className="rounded-2xl p-5 backdrop-blur-lg" style={{ backgroundColor: panelColor, border: `1px solid ${borderColor}` }}>
+                  <div key={pix.id} className="orbit-public-subpanel rounded-2xl p-5 backdrop-blur-lg">
                     <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
                       <div className="mx-auto overflow-hidden rounded-xl bg-white p-2 shadow-sm sm:mx-0"><QRCodeComponent value={pix.pixKey} size={126} /></div>
                       <div className="min-w-0 flex-1 text-center sm:text-left">
                         <h2 className="font-bold">{pix.title}</h2>
                         {pix.amount !== null && <div className="mt-1 text-lg font-black" style={{ color: client.primaryColor }}>{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(pix.amount)}</div>}
-                        {pix.description && <p className="mt-2 text-xs leading-5" style={{ color: mutedColor }}>{pix.description}</p>}
+                        {pix.description && <p className="orbit-public-muted mt-2 text-xs leading-5">{pix.description}</p>}
                         <CopyPixButton pixKey={pix.pixKey} color={client.primaryColor} />
                       </div>
                     </div>
@@ -175,6 +224,10 @@ export function ClientPublicPage({ client }: { client: PublicClient }) {
             )}
           </div>
         </section>
+
+        <div className="mt-4 flex items-center justify-center sm:hidden">
+          <div className="orbit-public-chip orbit-public-muted inline-flex items-center gap-2 rounded-full px-3 py-2 text-[10px] font-semibold backdrop-blur-lg"><Eye size={13} /> {client.views.toLocaleString('pt-BR')} visitas</div>
+        </div>
 
         {client.showBranding && (
           <Link href="/" className="mt-6 flex items-center justify-center gap-2 text-[10px] font-bold uppercase tracking-[0.22em] opacity-40 transition hover:opacity-70">

@@ -307,7 +307,7 @@ export function ModernLanding({ clients, stats }: { clients: LandingClient[]; st
               <div className="grid gap-9 lg:grid-cols-[.85fr_1.15fr] lg:items-center">
                 <div>
                   <div className="inline-flex items-center gap-2 rounded-full border border-red-300/20 bg-red-300/10 px-3 py-1.5 text-xs font-semibold text-red-200"><Zap size={14} /> Plano Orbit</div>
-                  <div className="mt-6 flex items-end gap-2"><span className="text-5xl font-black tracking-tight">R$ 49,90</span><span className="pb-1 text-sm text-white/40">/mês</span></div>
+                  <div className="mt-6 flex items-end gap-2"><span className="text-5xl font-black tracking-tight">R$ 29,90</span><span className="pb-1 text-sm text-white/40">/mês</span></div>
                   <p className="mt-4 text-sm leading-6 text-white/45">Preço fixo para receber sua página e manter o acesso ao painel de gerenciamento.</p>
                   <a href="#contato" className="orbit-btn-primary mt-7 w-full sm:w-auto">Quero minha página <ArrowRight size={18} /></a>
                 </div>
