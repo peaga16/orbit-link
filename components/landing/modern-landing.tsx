@@ -1,7 +1,4 @@
-'use client';
-
 import Link from 'next/link';
-import { useState } from 'react';
 import {
   ArrowRight,
   BarChart3,
@@ -11,16 +8,15 @@ import {
   Globe2,
   Image as ImageIcon,
   Link2,
-  Menu,
   MousePointerClick,
   Palette,
   Pencil,
   QrCode,
   ShieldCheck,
   Sparkles,
-  X,
   Zap,
 } from 'lucide-react';
+import { RemoteImage } from '@/components/ui/remote-image';
 
 export type LandingClient = {
   id: string;
@@ -111,22 +107,18 @@ function PagePreview({ client }: { client?: LandingClient }) {
       <div className="relative min-h-[620px] overflow-hidden rounded-[27px]" style={{ backgroundColor: background }}>
         {client?.backgroundImage && (
           <>
-            <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${client.backgroundImage})` }} />
+            <RemoteImage src={client.backgroundImage} alt="" fill priority width={780} height={1240} sizes="390px" quality={65} className="object-cover" />
             <div className="absolute inset-0 bg-black/65" />
           </>
         )}
         <div className="absolute inset-0 fine-grid opacity-45" />
         <div className="relative p-5">
-          <div
-            className="h-36 overflow-hidden rounded-2xl bg-cover bg-center"
-            style={{
-              backgroundImage: client?.headerImage
-                ? `linear-gradient(to top, rgba(0,0,0,.65), transparent), url(${client.headerImage})`
-                : `linear-gradient(135deg, ${primary}, ${secondary})`,
-            }}
-          />
-          <div className="mx-auto -mt-11 flex h-[88px] w-[88px] items-center justify-center overflow-hidden rounded-3xl border-4 border-[#111111] text-2xl font-black text-white shadow-xl" style={{ backgroundColor: primary }}>
-            {client?.logo ? <img src={client.logo} alt="" className="h-full w-full object-cover" /> : (client?.name?.charAt(0) || 'O')}
+          <div className="relative h-36 overflow-hidden rounded-2xl" style={!client?.headerImage ? { background: `linear-gradient(135deg, ${primary}, ${secondary})` } : undefined}>
+            {client?.headerImage && <RemoteImage src={client.headerImage} alt="" fill priority width={780} height={288} sizes="390px" quality={68} className="object-cover" />}
+            {client?.headerImage && <div className="absolute inset-0 bg-gradient-to-t from-black/65 to-transparent" />}
+          </div>
+          <div className="relative mx-auto -mt-11 flex h-[88px] w-[88px] items-center justify-center overflow-hidden rounded-3xl border-4 border-[#111111] text-2xl font-black text-white shadow-xl" style={{ backgroundColor: primary }}>
+            {client?.logo ? <RemoteImage src={client.logo} alt="" fill width={176} height={176} sizes="88px" quality={70} className="object-cover" /> : (client?.name?.charAt(0) || 'O')}
           </div>
           <div className="mt-4 text-center text-white">
             <h3 className="text-2xl font-black">{client?.name || 'Sua marca'}</h3>
@@ -136,8 +128,8 @@ function PagePreview({ client }: { client?: LandingClient }) {
             {links.map((link) => (
               <div key={link.id} className="flex items-center justify-between rounded-2xl p-3.5 text-sm font-semibold text-white shadow-lg" style={{ background: `linear-gradient(135deg, ${primary}, ${secondary})` }}>
                 <div className="flex min-w-0 items-center gap-3">
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white/15">
-                    {link.icon ? <img src={link.icon} alt="" className="h-full w-full object-cover" /> : <Link2 size={17} />}
+                  <div className="relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white/15">
+                    {link.icon ? <RemoteImage src={link.icon} alt="" fill width={88} height={88} sizes="44px" quality={65} className="object-cover" /> : <Link2 size={17} />}
                   </div>
                   <span className="truncate">{link.title}</span>
                 </div>
@@ -155,9 +147,7 @@ function PagePreview({ client }: { client?: LandingClient }) {
   );
 }
 
-function MetricsPanel({ clients }: { clients: LandingClient[] }) {
-  const views = clients.reduce((total, client) => total + client.views, 0);
-  const clicks = clients.reduce((total, client) => total + client.clicks, 0);
+function MetricsPanel({ clients, stats }: { clients: LandingClient[]; stats: { clients: number; views: number; clicks: number } }) {
 
   return (
     <div className="relative mx-auto mt-16 max-w-6xl px-4 sm:px-6">
@@ -186,9 +176,9 @@ function MetricsPanel({ clients }: { clients: LandingClient[] }) {
             </div>
             <div className="mt-7 grid gap-4 sm:grid-cols-3">
               {[
-                ['Páginas publicadas', formatNumber(clients.length), Globe2],
-                ['Visualizações reais', formatNumber(views), Eye],
-                ['Cliques registrados', formatNumber(clicks), MousePointerClick],
+                ['Páginas publicadas', formatNumber(stats.clients), Globe2],
+                ['Visualizações reais', formatNumber(stats.views), Eye],
+                ['Cliques registrados', formatNumber(stats.clicks), MousePointerClick],
               ].map(([label, value, Icon]) => {
                 const StatIcon = Icon as typeof Eye;
                 return (
@@ -203,7 +193,7 @@ function MetricsPanel({ clients }: { clients: LandingClient[] }) {
               <div className="grid grid-cols-[1fr_auto_auto] gap-4 border-b border-white/10 px-5 py-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/35"><span>Página</span><span>Visitas</span><span>Status</span></div>
               {clients.slice(0, 3).map((client, index) => (
                 <div key={client.id} className={`grid grid-cols-[1fr_auto_auto] items-center gap-4 px-5 py-4 ${index ? 'border-t border-white/10' : ''}`}>
-                  <div className="flex min-w-0 items-center gap-3"><div className="h-9 w-9 overflow-hidden rounded-xl" style={{ backgroundColor: client.primaryColor }}>{client.logo && <img src={client.logo} alt="" className="h-full w-full object-cover" />}</div><span className="truncate text-sm font-medium text-white/75">{client.name}</span></div>
+                  <div className="flex min-w-0 items-center gap-3"><div className="relative h-9 w-9 overflow-hidden rounded-xl" style={{ backgroundColor: client.primaryColor }}>{client.logo && <RemoteImage src={client.logo} alt="" fill width={72} height={72} sizes="36px" quality={65} className="object-cover" />}</div><span className="truncate text-sm font-medium text-white/75">{client.name}</span></div>
                   <span className="text-xs font-semibold text-white/55">{formatNumber(client.views)}</span>
                   <span className="rounded-full bg-emerald-400/10 px-2.5 py-1 text-[10px] font-bold text-emerald-300">ONLINE</span>
                 </div>
@@ -217,8 +207,7 @@ function MetricsPanel({ clients }: { clients: LandingClient[] }) {
   );
 }
 
-export function ModernLanding({ clients }: { clients: LandingClient[] }) {
-  const [menuOpen, setMenuOpen] = useState(false);
+export function ModernLanding({ clients, stats }: { clients: LandingClient[]; stats: { clients: number; views: number; clicks: number } }) {
   const featured = clients[0];
 
   return (
@@ -226,8 +215,8 @@ export function ModernLanding({ clients }: { clients: LandingClient[] }) {
       <section className="relative min-h-screen border-b border-white/10">
         <div className="pointer-events-none absolute inset-0 landing-grid opacity-70" />
         <div className="pointer-events-none absolute inset-x-0 top-0 h-[760px] bg-[radial-gradient(circle_at_50%_0%,rgba(239,35,42,.20),transparent_56%)]" />
-        <div className="pointer-events-none absolute -left-40 top-32 h-[520px] w-[520px] rounded-full bg-red-700/15 blur-[150px]" />
-        <div className="pointer-events-none absolute right-[-180px] top-16 h-[520px] w-[520px] rounded-full bg-red-400/10 blur-[145px]" />
+        <div className="pointer-events-none absolute -left-40 top-32 h-[520px] w-[520px] rounded-full bg-red-700/15 blur-[80px] sm:blur-[150px]" />
+        <div className="pointer-events-none absolute right-[-180px] top-16 h-[520px] w-[520px] rounded-full bg-red-400/10 blur-[80px] sm:blur-[145px]" />
         <div className="pointer-events-none absolute left-1/2 top-24 h-px w-[80%] -translate-x-1/2 tech-beam animate-orbit-scan opacity-60" />
 
         <div className="relative z-20 mx-auto max-w-6xl px-4 pt-5 sm:px-6">
@@ -241,19 +230,19 @@ export function ModernLanding({ clients }: { clients: LandingClient[] }) {
               <a href="#contato" className="transition hover:text-red-300">Contato</a>
             </div>
             <div className="hidden items-center gap-2 md:flex"><Link href="/cliente/login" className="orbit-btn-secondary px-4 py-2.5 text-sm">Área do cliente</Link></div>
-            <button onClick={() => setMenuOpen(!menuOpen)} className="rounded-xl border border-white/10 p-2.5 text-white/70 md:hidden" aria-label="Abrir menu">{menuOpen ? <X size={20} /> : <Menu size={20} />}</button>
-          </nav>
-          {menuOpen && (
-            <div className="mt-2 rounded-2xl border border-red-200/10 bg-black/95 p-4 backdrop-blur-xl md:hidden">
-              <div className="grid gap-1 text-sm">
-                <a href="#beneficios" onClick={() => setMenuOpen(false)} className="rounded-lg px-3 py-3 text-white/70">Benefícios</a>
-                <Link href="/clientes" className="rounded-lg px-3 py-3 text-white/70">Todas as páginas</Link>
-                <a href="#processo" onClick={() => setMenuOpen(false)} className="rounded-lg px-3 py-3 text-white/70">Como funciona</a>
-                <a href="#plano" onClick={() => setMenuOpen(false)} className="rounded-lg px-3 py-3 text-white/70">Plano</a>
-                <Link href="/cliente/login" className="mt-2 rounded-xl bg-red-500 px-4 py-3 text-center font-semibold text-slate-950">Área do cliente</Link>
+            <details className="group relative md:hidden">
+              <summary className="flex cursor-pointer list-none items-center justify-center rounded-xl border border-white/10 px-3 py-2.5 text-sm font-semibold text-white/70">Menu</summary>
+              <div className="absolute right-0 top-12 z-50 w-64 rounded-2xl border border-red-200/10 bg-black/95 p-4 shadow-2xl backdrop-blur-lg">
+                <div className="grid gap-1 text-sm">
+                  <a href="#beneficios" className="rounded-lg px-3 py-3 text-white/70">Benefícios</a>
+                  <Link href="/clientes" className="rounded-lg px-3 py-3 text-white/70">Todas as páginas</Link>
+                  <a href="#processo" className="rounded-lg px-3 py-3 text-white/70">Como funciona</a>
+                  <a href="#plano" className="rounded-lg px-3 py-3 text-white/70">Plano</a>
+                  <Link href="/cliente/login" className="mt-2 rounded-xl bg-red-500 px-4 py-3 text-center font-semibold text-white">Área do cliente</Link>
+                </div>
               </div>
-            </div>
-          )}
+            </details>
+          </nav>
         </div>
 
         <div className="relative mx-auto grid max-w-6xl items-center gap-14 px-4 pb-10 pt-20 sm:px-6 lg:grid-cols-[1.05fr_.95fr] lg:pt-24">
@@ -267,11 +256,11 @@ export function ModernLanding({ clients }: { clients: LandingClient[] }) {
           <div className="relative"><div className="absolute inset-0 orbit-glow animate-orbit-pulse" /><div className="relative animate-orbit-float"><PagePreview client={featured} /></div></div>
         </div>
 
-        <MetricsPanel clients={clients} />
+        <MetricsPanel clients={clients} stats={stats} />
         <div className="h-20" />
       </section>
 
-      <section id="beneficios" className="relative border-b border-white/10 px-4 py-24 sm:px-6">
+      <section id="beneficios" className="content-auto relative border-b border-white/10 px-4 py-24 sm:px-6">
         <div className="pointer-events-none absolute inset-0 fine-grid opacity-40" />
         <div className="relative mx-auto max-w-6xl">
           <div className="grid gap-10 lg:grid-cols-[.9fr_1.1fr] lg:items-end"><div><div className="text-xs font-bold uppercase tracking-[0.28em] text-red-300">Feito para sua marca</div><h2 className="mt-4 max-w-xl text-balance text-4xl font-semibold tracking-[-0.035em] sm:text-5xl">Você cuida do conteúdo. A estrutura já está pronta.</h2></div><p className="max-w-xl text-base leading-7 text-white/50 lg:justify-self-end">Sem precisar contratar um site novo para cada atualização. A página nasce personalizada e continua fácil de manter pelo painel do cliente.</p></div>
@@ -279,19 +268,21 @@ export function ModernLanding({ clients }: { clients: LandingClient[] }) {
         </div>
       </section>
 
-      <section className="px-4 py-24 sm:px-6">
+      <section className="content-auto px-4 py-24 sm:px-6">
         <div className="mx-auto max-w-6xl">
           <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between"><div><div className="text-xs font-bold uppercase tracking-[0.28em] text-red-300">Páginas publicadas</div><h2 className="mt-4 text-balance text-4xl font-semibold tracking-[-0.035em] sm:text-5xl">Conheça quem já está na Orbit.</h2><p className="mt-5 max-w-2xl text-white/50">Todo novo cliente cadastrado aparece automaticamente na vitrine pública.</p></div><Link href="/clientes" className="orbit-btn-secondary shrink-0">Ver todos os clientes <ArrowRight size={17} /></Link></div>
           <div className="mt-14 grid gap-6 lg:grid-cols-2">
             {clients.slice(0, 4).map((client) => (
               <article key={client.id} className="group overflow-hidden rounded-[26px] border border-white/10 bg-[#0d0d0d] transition hover:border-red-200/20">
-                <div className="relative min-h-[370px] overflow-hidden p-6 sm:p-8" style={{ background: client.backgroundImage ? `linear-gradient(rgba(0,0,0,.62),rgba(0,0,0,.78)), url(${client.backgroundImage}) center/cover` : `linear-gradient(145deg, ${client.backgroundColor}, #070707)` }}>
+                <div className="relative min-h-[370px] overflow-hidden p-6 sm:p-8" style={!client.backgroundImage ? { background: `linear-gradient(145deg, ${client.backgroundColor}, #070707)` } : undefined}>
+                  {client.backgroundImage && <RemoteImage src={client.backgroundImage} alt="" fill width={1000} height={740} sizes="(max-width: 1024px) 100vw, 50vw" quality={65} className="object-cover" />}
+                  {client.backgroundImage && <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/80" />}
                   <div className="absolute inset-0 fine-grid opacity-25" />
                   <div className="relative z-10 mx-auto max-w-sm rounded-[28px] border border-white/10 bg-black/45 p-5 shadow-2xl backdrop-blur-xl transition duration-500 group-hover:-translate-y-2">
-                    <div className="h-24 overflow-hidden rounded-2xl bg-cover bg-center" style={{ backgroundImage: client.headerImage ? `linear-gradient(to top, rgba(0,0,0,.75), transparent), url(${client.headerImage})` : `linear-gradient(135deg, ${client.primaryColor}, ${client.secondaryColor})` }} />
-                    <div className="mx-auto -mt-8 flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl border-4 border-[#111111] text-xl font-black text-white" style={{ backgroundColor: client.primaryColor }}>{client.logo ? <img src={client.logo} alt="" className="h-full w-full object-cover" /> : client.name.charAt(0)}</div>
+                    <div className="relative h-24 overflow-hidden rounded-2xl" style={!client.headerImage ? { background: `linear-gradient(135deg, ${client.primaryColor}, ${client.secondaryColor})` } : undefined}>{client.headerImage && <RemoteImage src={client.headerImage} alt="" fill width={700} height={192} sizes="384px" quality={65} className="object-cover" />}{client.headerImage && <div className="absolute inset-0 bg-gradient-to-t from-black/75 to-transparent" />}</div>
+                    <div className="relative mx-auto -mt-8 flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl border-4 border-[#111111] text-xl font-black text-white" style={{ backgroundColor: client.primaryColor }}>{client.logo ? <RemoteImage src={client.logo} alt="" fill width={128} height={128} sizes="64px" quality={65} className="object-cover" /> : client.name.charAt(0)}</div>
                     <div className="mt-3 text-center"><h3 className="text-xl font-bold">{client.name}</h3><p className="mt-1 text-xs text-white/45">{client.title || `/${client.slug}`}</p></div>
-                    <div className="mt-5 space-y-2.5">{client.links.slice(0, 3).map((link) => <div key={link.id} className="flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.055] px-3 py-3 text-sm font-medium"><div className="flex min-w-0 items-center gap-2"><div className="h-8 w-8 overflow-hidden rounded-lg bg-white/10">{link.icon && <img src={link.icon} alt="" className="h-full w-full object-cover" />}</div><span className="truncate">{link.title}</span></div><ChevronRight size={15} className="text-white/35" /></div>)}</div>
+                    <div className="mt-5 space-y-2.5">{client.links.slice(0, 3).map((link) => <div key={link.id} className="flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.055] px-3 py-3 text-sm font-medium"><div className="flex min-w-0 items-center gap-2"><div className="relative h-8 w-8 overflow-hidden rounded-lg bg-white/10">{link.icon && <RemoteImage src={link.icon} alt="" fill width={64} height={64} sizes="32px" quality={60} className="object-cover" />}</div><span className="truncate">{link.title}</span></div><ChevronRight size={15} className="text-white/35" /></div>)}</div>
                   </div>
                 </div>
                 <div className="flex flex-col gap-5 border-t border-white/10 p-6 sm:flex-row sm:items-center sm:justify-between sm:p-7"><div><div className="text-xl font-semibold">{client.name}</div><p className="mt-2 max-w-md text-sm leading-6 text-white/45">{client.description || 'Página profissional com os principais canais da marca.'}</p></div><Link href={`/${client.slug}`} target="_blank" className="orbit-btn-secondary shrink-0">Abrir página <ArrowRight size={16} /></Link></div>
@@ -302,13 +293,13 @@ export function ModernLanding({ clients }: { clients: LandingClient[] }) {
         </div>
       </section>
 
-      <section id="processo" className="border-y border-white/10 bg-[#0a0a0a] px-4 py-24 sm:px-6">
+      <section id="processo" className="content-auto border-y border-white/10 bg-[#0a0a0a] px-4 py-24 sm:px-6">
         <div className="mx-auto max-w-6xl"><div className="grid gap-12 lg:grid-cols-[.85fr_1.15fr] lg:items-center"><div><div className="inline-flex items-center gap-2 rounded-full border border-red-300/20 bg-red-300/10 px-3 py-1.5 text-xs font-semibold text-red-200"><ShieldCheck size={14} /> Serviço completo</div><h2 className="mt-5 text-balance text-4xl font-semibold tracking-[-0.035em] sm:text-5xl">Você não precisa montar o sistema. Você recebe a página pronta.</h2><p className="mt-5 max-w-lg leading-7 text-white/50">A criação fica com a Orbit. O painel serve para manter a página sempre atualizada, sem depender de alterações técnicas.</p></div><div className="space-y-3">{[[Palette, 'Definimos o visual', 'Organizamos identidade, cores, imagens e estrutura de acordo com sua marca.'], [Globe2, 'Criamos e publicamos', 'Sua página recebe um endereço público e já chega pronta para compartilhar.'], [Pencil, 'Você mantém o conteúdo', 'Entre no painel para trocar links, imagens, fundo, textos, Pix e acompanhar métricas.']].map(([Icon, title, description], index) => { const StepIcon = Icon as typeof Palette; return <div key={String(title)} className="flex gap-5 rounded-2xl border border-white/10 bg-white/[0.025] p-5 sm:p-6"><div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-red-500 to-red-800 text-white shadow-[0_0_30px_rgba(239,35,42,.18)]"><StepIcon size={21} /></div><div><div className="text-xs font-semibold uppercase tracking-[0.2em] text-white/25">Etapa 0{index + 1}</div><h3 className="mt-2 text-lg font-semibold">{String(title)}</h3><p className="mt-2 text-sm leading-6 text-white/45">{String(description)}</p></div></div>; })}</div></div></div>
       </section>
 
-      <section id="plano" className="relative overflow-hidden px-4 py-24 sm:px-6">
+      <section id="plano" className="content-auto relative overflow-hidden px-4 py-24 sm:px-6">
         <div className="pointer-events-none absolute inset-0 fine-grid opacity-35" />
-        <div className="pointer-events-none absolute left-1/2 top-1/2 h-[520px] w-[720px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-red-400/10 blur-[150px]" />
+        <div className="pointer-events-none absolute left-1/2 top-1/2 h-[520px] w-[720px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-red-400/10 blur-[80px] sm:blur-[150px]" />
         <div className="relative mx-auto max-w-5xl">
           <div className="text-center"><div className="text-xs font-bold uppercase tracking-[0.28em] text-red-300">Um único plano</div><h2 className="mt-4 text-balance text-4xl font-semibold tracking-[-0.035em] sm:text-5xl">Tudo o que sua página precisa, sem escolhas complicadas.</h2><p className="mx-auto mt-5 max-w-2xl text-white/50">Por enquanto, a Orbit trabalha com um preço fixo e todos os recursos essenciais inclusos.</p></div>
           <div className="relative mx-auto mt-12 max-w-3xl overflow-hidden rounded-[30px] border border-red-300/20 bg-gradient-to-br from-red-300/[0.09] via-white/[0.035] to-red-500/[0.08] p-1 shadow-glow">
@@ -329,10 +320,10 @@ export function ModernLanding({ clients }: { clients: LandingClient[] }) {
         </div>
       </section>
 
-      <section id="contato" className="relative px-4 py-24 sm:px-6">
+      <section id="contato" className="content-auto relative px-4 py-24 sm:px-6">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(239,35,42,.15),transparent_55%)]" />
         <div className="relative mx-auto max-w-5xl overflow-hidden rounded-[30px] border border-red-300/20 bg-gradient-to-br from-[#27090b] via-[#14090a] to-[#07070a] p-8 text-center shadow-glow sm:p-14">
-          <div className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-red-600/20 blur-[90px]" />
+          <div className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-red-600/20 blur-[65px] sm:blur-[90px]" />
           <div className="relative mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-red-300/30 bg-red-600 text-white shadow-[0_0_36px_rgba(239,35,42,.25)]"><MousePointerClick size={25} /></div>
           <h2 className="relative mx-auto mt-6 max-w-2xl text-balance text-4xl font-semibold tracking-[-0.04em] sm:text-5xl">Sua marca merece mais do que uma lista comum de links.</h2>
           <p className="relative mx-auto mt-5 max-w-xl leading-7 text-white/50">Tenha uma página criada para o seu negócio, com acesso próprio para manter tudo atualizado.</p>

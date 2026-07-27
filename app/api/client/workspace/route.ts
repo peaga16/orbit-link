@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidateTag } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { CLIENT_COOKIE_NAME, verifyClientToken } from '@/lib/client-auth';
 import {
@@ -6,6 +7,9 @@ import {
   syncWorkspaceItems,
   workspaceFields,
 } from '@/lib/admin-data';
+
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
 function getSession(request: NextRequest) {
   return verifyClientToken(request.cookies.get(CLIENT_COOKIE_NAME)?.value);
@@ -53,6 +57,7 @@ export async function PUT(request: NextRequest) {
       });
     });
 
+    revalidateTag('public-pages');
     return NextResponse.json({ workspace });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Não foi possível salvar as alterações.';

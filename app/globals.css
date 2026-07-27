@@ -2,62 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-@font-face {
-  font-family: 'Tecna';
-  src: url('/fonts/tecnaextralight.otf') format('opentype');
-  font-weight: 200;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Tecna';
-  src: url('/fonts/tecnalight.otf') format('opentype');
-  font-weight: 300;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Tecna';
-  src: url('/fonts/tecnaregular.otf') format('opentype');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Tecna';
-  src: url('/fonts/tecnademibold.otf') format('opentype');
-  font-weight: 600;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Tecna';
-  src: url('/fonts/tecnabold.otf') format('opentype');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Tecna';
-  src: url('/fonts/tecnaextrabold.otf') format('opentype');
-  font-weight: 800;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Tecna';
-  src: url('/fonts/tecnablack.otf') format('opentype');
-  font-weight: 900;
-  font-style: normal;
-  font-display: swap;
-}
-
 :root {
   --orbit-accent: #ef232a;
   --orbit-accent-strong: #9f0d12;
@@ -77,7 +21,7 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
-  font-family: 'Tecna', Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: var(--font-tecna), Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   background: #070707;
   color: #f7f7f7;
   -webkit-font-smoothing: antialiased;
@@ -207,4 +151,38 @@ select {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #444444;
+}
+
+
+.content-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 900px;
+}
+
+@media (max-width: 768px) {
+  .animate-orbit-float,
+  .animate-orbit-pulse,
+  .animate-orbit-scan {
+    animation: none;
+  }
+
+  .orbit-glow {
+    filter: blur(36px);
+    opacity: .45;
+  }
+
+  .orbit-panel {
+    backdrop-filter: blur(8px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

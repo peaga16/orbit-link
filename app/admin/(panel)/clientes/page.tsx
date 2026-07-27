@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { Edit3, ExternalLink, Link2, Plus, Search, Users } from 'lucide-react';
 import { prisma } from '@/lib/prisma';
 import { DeleteClientButton } from '@/components/admin/delete-client-button';
+import { RemoteImage } from '@/components/ui/remote-image';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,7 +21,19 @@ export default async function ClientsPage({ searchParams }: { searchParams?: { q
           ] }
         : undefined,
       orderBy: { updatedAt: 'desc' },
-      include: { _count: { select: { links: true, pixQRCodes: true } } },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        description: true,
+        headerImage: true,
+        logo: true,
+        primaryColor: true,
+        secondaryColor: true,
+        views: true,
+        clicks: true,
+        _count: { select: { links: true } },
+      },
     });
   } catch {
     databaseError = true;
@@ -49,11 +62,11 @@ export default async function ClientsPage({ searchParams }: { searchParams?: { q
       <div className="grid gap-5 md:grid-cols-2 2xl:grid-cols-3">
         {clients.map((client) => (
           <article key={client.id} className="admin-card overflow-hidden transition hover:-translate-y-0.5 hover:shadow-md">
-            <div className="relative h-32 overflow-hidden bg-slate-900">
-              <div className="absolute inset-0 bg-cover bg-center opacity-70" style={{ backgroundImage: client.headerImage ? `url(${client.headerImage})` : `linear-gradient(135deg, ${client.primaryColor}, ${client.secondaryColor})` }} />
+            <div className="relative h-32 overflow-hidden bg-slate-900" style={!client.headerImage ? { background: `linear-gradient(135deg, ${client.primaryColor}, ${client.secondaryColor})` } : undefined}>
+              {client.headerImage && <RemoteImage src={client.headerImage} alt="" fill width={800} height={256} sizes="(max-width: 768px) 100vw, 50vw" quality={62} className="object-cover opacity-70" />}
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
               <div className="absolute left-5 top-5 flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl border-2 border-white/30 text-xl font-bold text-white shadow-lg" style={{ backgroundColor: client.primaryColor }}>
-                {client.logo ? <img src={client.logo} alt="" className="h-full w-full object-cover" /> : client.name.charAt(0)}
+                {client.logo ? <RemoteImage src={client.logo} alt="" fill width={112} height={112} sizes="56px" quality={62} className="object-cover" /> : client.name.charAt(0)}
               </div>
               <span className="absolute right-4 top-4 rounded-full bg-emerald-400/90 px-2.5 py-1 text-[10px] font-bold text-emerald-950 backdrop-blur">PUBLICADO</span>
             </div>

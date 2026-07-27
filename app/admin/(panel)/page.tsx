@@ -9,6 +9,7 @@ import {
   Users,
 } from 'lucide-react';
 import { prisma } from '@/lib/prisma';
+import { RemoteImage } from '@/components/ui/remote-image';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,24 +19,47 @@ function formatNumber(value: number) {
 
 export default async function AdminDashboardPage() {
   let clients: Array<any> = [];
+  let summary = { count: 0, views: 0, clicks: 0 };
   let databaseError = false;
 
   try {
-    clients = await prisma.workspace.findMany({
-      orderBy: { updatedAt: 'desc' },
-      include: { _count: { select: { links: true } } },
-    });
+    const [aggregate, recentClients] = await Promise.all([
+      prisma.workspace.aggregate({
+        _count: { id: true },
+        _sum: { views: true, clicks: true },
+      }),
+      prisma.workspace.findMany({
+        take: 5,
+        orderBy: { updatedAt: 'desc' },
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          logo: true,
+          primaryColor: true,
+          views: true,
+          clicks: true,
+          _count: { select: { links: true } },
+        },
+      }),
+    ]);
+    clients = recentClients;
+    summary = {
+      count: aggregate._count.id,
+      views: aggregate._sum.views || 0,
+      clicks: aggregate._sum.clicks || 0,
+    };
   } catch {
     databaseError = true;
   }
 
-  const activeClients = clients.length;
-  const views = clients.reduce((total, client) => total + client.views, 0);
-  const clicks = clients.reduce((total, client) => total + client.clicks, 0);
+  const activeClients = summary.count;
+  const views = summary.views;
+  const clicks = summary.clicks;
   const conversion = views > 0 ? (clicks / views) * 100 : 0;
 
   const stats = [
-    { label: 'Clientes ativos', value: activeClients, icon: Users, detail: `${clients.length} cadastrados` },
+    { label: 'Clientes ativos', value: activeClients, icon: Users, detail: `${activeClients} cadastrados` },
     { label: 'Visualizações', value: formatNumber(views), icon: Eye, detail: 'Total das páginas' },
     { label: 'Cliques', value: formatNumber(clicks), icon: MousePointerClick, detail: 'Links acessados' },
     { label: 'Taxa de clique', value: `${conversion.toFixed(1)}%`, icon: TrendingUp, detail: 'Cliques por visita' },
@@ -88,8 +112,8 @@ export default async function AdminDashboardPage() {
             {clients.slice(0, 5).map((client, index) => (
               <div key={client.id} className={`flex flex-col gap-4 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 ${index > 0 ? 'border-t border-slate-100' : ''}`}>
                 <div className="flex min-w-0 items-center gap-3">
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl text-sm font-bold text-white" style={{ backgroundColor: client.primaryColor }}>
-                    {client.logo ? <img src={client.logo} alt="" className="h-full w-full object-cover" /> : client.name.charAt(0)}
+                  <div className="relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl text-sm font-bold text-white" style={{ backgroundColor: client.primaryColor }}>
+                    {client.logo ? <RemoteImage src={client.logo} alt="" fill width={88} height={88} sizes="44px" quality={62} className="object-cover" /> : client.name.charAt(0)}
                   </div>
                   <div className="min-w-0"><div className="truncate font-semibold text-slate-900">{client.name}</div><div className="truncate text-xs text-slate-400">/{client.slug} · {client._count.links} links</div></div>
                 </div>

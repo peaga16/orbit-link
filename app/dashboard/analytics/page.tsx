@@ -16,22 +16,40 @@ export default async function ClientAnalyticsPage() {
 
   const workspace = await prisma.workspace.findUnique({
     where: { id: session.workspaceId },
-    include: {
-      links: { orderBy: { clicks: 'desc' } },
-      analytics: { where: { createdAt: { gte: start } }, orderBy: { createdAt: 'asc' } },
+    select: {
+      views: true,
+      clicks: true,
+      links: {
+        orderBy: { clicks: 'desc' },
+        select: { id: true, title: true, url: true, clicks: true },
+      },
+      analytics: {
+        where: { createdAt: { gte: start } },
+        orderBy: { createdAt: 'asc' },
+        select: { eventType: true, createdAt: true },
+      },
     },
   });
   if (!workspace) return null;
+
+  const totalsByDay = new Map<string, { views: number; clicks: number }>();
+  for (const event of workspace.analytics) {
+    const key = dayKey(event.createdAt);
+    const current = totalsByDay.get(key) || { views: 0, clicks: 0 };
+    if (event.eventType === 'view') current.views += 1;
+    if (event.eventType === 'click') current.clicks += 1;
+    totalsByDay.set(key, current);
+  }
 
   const days = Array.from({ length: 7 }, (_, index) => {
     const date = new Date(start);
     date.setDate(start.getDate() + index);
     const key = dayKey(date);
+    const totals = totalsByDay.get(key) || { views: 0, clicks: 0 };
     return {
       key,
       label: new Intl.DateTimeFormat('pt-BR', { weekday: 'short', day: '2-digit' }).format(date),
-      views: workspace.analytics.filter((item) => item.eventType === 'view' && dayKey(item.createdAt) === key).length,
-      clicks: workspace.analytics.filter((item) => item.eventType === 'click' && dayKey(item.createdAt) === key).length,
+      ...totals,
     };
   });
   const maxDaily = Math.max(...days.flatMap((day) => [day.views, day.clicks]), 1);

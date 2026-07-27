@@ -13,9 +13,21 @@ export default async function ClientDashboardPage() {
   const session = requireClientSession();
   const workspace = await prisma.workspace.findUnique({
     where: { id: session.workspaceId },
-    include: {
-      links: { orderBy: [{ clicks: 'desc' }, { order: 'asc' }] },
-      analytics: { orderBy: { createdAt: 'desc' }, take: 8 },
+    select: {
+      id: true,
+      name: true,
+      primaryColor: true,
+      views: true,
+      clicks: true,
+      links: {
+        orderBy: [{ clicks: 'desc' }, { order: 'asc' }],
+        select: { id: true, title: true, clicks: true, isActive: true },
+      },
+      analytics: {
+        orderBy: { createdAt: 'desc' },
+        take: 8,
+        select: { id: true, eventType: true, createdAt: true },
+      },
     },
   });
 

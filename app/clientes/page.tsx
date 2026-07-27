@@ -1,31 +1,53 @@
 import Link from 'next/link';
+import { unstable_cache } from 'next/cache';
 import { ArrowLeft, ArrowRight, Eye, Link2, MousePointerClick } from 'lucide-react';
+import { RemoteImage } from '@/components/ui/remote-image';
 import { prisma } from '@/lib/prisma';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
+
+const getPublicClients = unstable_cache(
+  async () => prisma.workspace.findMany({
+    orderBy: { createdAt: 'desc' },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      title: true,
+      description: true,
+      primaryColor: true,
+      secondaryColor: true,
+      backgroundColor: true,
+      backgroundImage: true,
+      logo: true,
+      headerImage: true,
+      views: true,
+      clicks: true,
+      links: {
+        where: { isActive: true },
+        orderBy: { order: 'asc' },
+        take: 4,
+        select: { id: true, title: true, icon: true },
+      },
+    },
+  }).catch(() => []),
+  ['public-clients-directory'],
+  { revalidate: 60, tags: ['public-pages'] },
+);
 
 function formatNumber(value: number) {
   return new Intl.NumberFormat('pt-BR').format(value);
 }
 
 export default async function PublicClientsPage() {
-  const clients = await prisma.workspace.findMany({
-    orderBy: { createdAt: 'desc' },
-    include: {
-      links: {
-        where: { isActive: true },
-        orderBy: { order: 'asc' },
-        take: 4,
-      },
-    },
-  }).catch(() => []);
+  const clients = await getPublicClients();
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#070707] px-4 py-8 text-white sm:px-6 sm:py-12">
       <div className="pointer-events-none absolute inset-0 landing-grid opacity-60" />
       <div className="pointer-events-none absolute inset-x-0 top-0 h-[600px] bg-[radial-gradient(circle_at_50%_0%,rgba(239,35,42,.22),transparent_62%)]" />
-      <div className="pointer-events-none absolute -left-40 top-44 h-[420px] w-[420px] rounded-full bg-red-600/15 blur-[130px]" />
-      <div className="pointer-events-none absolute -right-40 top-16 h-[420px] w-[420px] rounded-full bg-red-400/10 blur-[130px]" />
+      <div className="pointer-events-none absolute -left-40 top-44 h-[420px] w-[420px] rounded-full bg-red-600/15 blur-[70px] sm:blur-[130px]" />
+      <div className="pointer-events-none absolute -right-40 top-16 h-[420px] w-[420px] rounded-full bg-red-400/10 blur-[70px] sm:blur-[130px]" />
       <div className="relative mx-auto max-w-6xl">
         <div className="flex items-center justify-between gap-4">
           <Link href="/" className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm font-semibold text-white/70 transition hover:bg-white/[0.08] hover:text-white"><ArrowLeft size={16} /> Voltar</Link>
@@ -40,12 +62,25 @@ export default async function PublicClientsPage() {
 
         <section className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
           {clients.map((client) => (
-            <article key={client.id} className="group overflow-hidden rounded-[26px] border border-white/10 bg-[#0d0d0d] transition hover:-translate-y-1 hover:border-white/20">
-              <div className="relative h-48 overflow-hidden bg-cover bg-center" style={{ backgroundImage: client.headerImage ? `linear-gradient(to top, rgba(0,0,0,.78), transparent), url(${client.headerImage})` : client.backgroundImage ? `linear-gradient(to top, rgba(0,0,0,.76), rgba(0,0,0,.2)), url(${client.backgroundImage})` : `linear-gradient(135deg, ${client.primaryColor}, ${client.secondaryColor})` }}>
+            <article key={client.id} className="content-auto group overflow-hidden rounded-[26px] border border-white/10 bg-[#0d0d0d] transition hover:-translate-y-1 hover:border-white/20">
+              <div className="relative h-48 overflow-hidden" style={!client.headerImage && !client.backgroundImage ? { background: `linear-gradient(135deg, ${client.primaryColor}, ${client.secondaryColor})` } : undefined}>
+                {(client.headerImage || client.backgroundImage) && (
+                  <RemoteImage
+                    src={(client.headerImage || client.backgroundImage)!}
+                    alt={`Capa de ${client.name}`}
+                    fill
+                    width={900}
+                    height={384}
+                    sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                    quality={66}
+                    className="object-cover transition duration-500 group-hover:scale-[1.03]"
+                  />
+                )}
+                {(client.headerImage || client.backgroundImage) && <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />}
                 <div className="absolute inset-0 fine-grid opacity-30" />
                 <div className="absolute bottom-5 left-5 flex items-center gap-3">
-                  <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl border-2 border-white/20 text-xl font-black text-white shadow-xl" style={{ backgroundColor: client.primaryColor }}>
-                    {client.logo ? <img src={client.logo} alt="" className="h-full w-full object-cover" /> : client.name.charAt(0)}
+                  <div className="relative flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl border-2 border-white/20 text-xl font-black text-white shadow-xl" style={{ backgroundColor: client.primaryColor }}>
+                    {client.logo ? <RemoteImage src={client.logo} alt="" fill width={112} height={112} sizes="56px" quality={68} className="object-cover" /> : client.name.charAt(0)}
                   </div>
                   <div><h2 className="text-xl font-bold">{client.name}</h2><p className="mt-1 text-xs text-white/55">/{client.slug}</p></div>
                 </div>
@@ -55,7 +90,7 @@ export default async function PublicClientsPage() {
                 <div className="mt-5 space-y-2">
                   {client.links.map((link) => (
                     <div key={link.id} className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.035] px-3 py-2.5">
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-white/10">{link.icon ? <img src={link.icon} alt="" className="h-full w-full object-cover" /> : <Link2 size={15} className="text-white/50" />}</div>
+                      <div className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-white/10">{link.icon ? <RemoteImage src={link.icon} alt="" fill width={72} height={72} sizes="36px" quality={62} className="object-cover" /> : <Link2 size={15} className="text-white/50" />}</div>
                       <span className="truncate text-sm font-medium text-white/75">{link.title}</span>
                     </div>
                   ))}

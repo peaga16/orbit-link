@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidateTag } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import {
   getOrCreateAdminUser,
@@ -73,6 +74,7 @@ export async function POST(request: NextRequest) {
       });
     });
 
+    revalidateTag('public-pages');
     return NextResponse.json({ client }, { status: 201 });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Não foi possível criar o cliente.';

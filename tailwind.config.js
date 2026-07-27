@@ -8,8 +8,8 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Tecna', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        tecna: ['Tecna', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        sans: ['var(--font-tecna)', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        tecna: ['var(--font-tecna)', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
       boxShadow: {
         glow: '0 0 70px rgba(239, 35, 42, 0.22), 0 0 120px rgba(127, 16, 21, 0.10)',

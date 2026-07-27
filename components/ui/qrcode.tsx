@@ -1,35 +1,26 @@
-'use client';
-
 import QRCode from 'qrcode';
-import { useEffect, useRef } from 'react';
 
 interface QRCodeComponentProps {
   value: string;
   size?: number;
 }
 
-export function QRCodeComponent({ value, size = 200 }: QRCodeComponentProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+export async function QRCodeComponent({ value, size = 200 }: QRCodeComponentProps) {
+  const svg = await QRCode.toString(value, {
+    type: 'svg',
+    width: size,
+    margin: 2,
+    color: {
+      dark: '#000000',
+      light: '#FFFFFF',
+    },
+  });
 
-  useEffect(() => {
-    if (canvasRef.current) {
-      QRCode.toCanvas(
-        canvasRef.current,
-        value,
-        {
-          width: size,
-          margin: 2,
-          color: {
-            dark: '#000000',
-            light: '#FFFFFF',
-          },
-        },
-        (error) => {
-          if (error) console.error(error);
-        }
-      );
-    }
-  }, [value, size]);
-
-  return <canvas ref={canvasRef} />;
+  return (
+    <div
+      aria-label="QR Code Pix"
+      className="leading-none [&_svg]:block [&_svg]:h-auto [&_svg]:max-w-full"
+      dangerouslySetInnerHTML={{ __html: svg }}
+    />
+  );
 }

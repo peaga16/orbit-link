@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { BarChart3, ExternalLink, LayoutDashboard, LogOut, Menu, Pencil, X } from 'lucide-react';
+import { RemoteImage } from '@/components/ui/remote-image';
 
 const navItems = [
   { href: '/dashboard', label: 'Visão geral', icon: LayoutDashboard },
@@ -62,8 +63,8 @@ export function ClientShell({
       <div className="border-t border-white/10 p-3">
         <div className="mb-3 rounded-xl border border-white/10 bg-white/[0.035] p-3">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl text-sm font-bold text-white" style={{ backgroundColor: workspace.primaryColor }}>
-              {workspace.logo ? <img src={workspace.logo} alt="" className="h-full w-full object-cover" /> : workspace.name.charAt(0)}
+            <div className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl text-sm font-bold text-white" style={{ backgroundColor: workspace.primaryColor }}>
+              {workspace.logo ? <RemoteImage src={workspace.logo} alt="" fill width={80} height={80} sizes="40px" quality={60} className="object-cover" /> : workspace.name.charAt(0)}
             </div>
             <div className="min-w-0"><div className="truncate text-sm font-semibold text-white">{workspace.name}</div><div className="truncate text-[11px] text-white/35">/{workspace.slug}</div></div>
           </div>

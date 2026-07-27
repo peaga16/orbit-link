@@ -2,6 +2,7 @@
 
 import { ChangeEvent, useRef, useState } from 'react';
 import { Image as ImageIcon, Loader2, Trash2, UploadCloud } from 'lucide-react';
+import { RemoteImage } from '@/components/ui/remote-image';
 
 type ImageUploadProps = {
   label: string;
@@ -56,7 +57,7 @@ export function ImageUpload({
       <div className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
         {value ? (
           <div className={`relative w-full overflow-hidden bg-slate-100 ${previewClassName}`}>
-            <img src={value} alt={label} className="h-full w-full object-cover" />
+            <RemoteImage src={value} alt={label} fill width={900} height={500} sizes="(max-width: 768px) 100vw, 50vw" quality={65} className="object-cover" />
             <div className="absolute inset-x-0 bottom-0 flex items-center justify-end gap-2 bg-gradient-to-t from-black/70 to-transparent p-3 pt-10">
               <button
                 type="button"

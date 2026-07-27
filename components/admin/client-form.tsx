@@ -19,6 +19,7 @@ import {
   Trash2,
 } from 'lucide-react';
 import { ImageUpload } from '@/components/ui/image-upload';
+import { RemoteImage } from '@/components/ui/remote-image';
 
 type LinkItem = {
   id?: string;
@@ -405,19 +406,19 @@ export function ClientForm({
             <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-bold text-emerald-600"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> LIVE</span>
           </div>
           <div className="rounded-[32px] border border-slate-200 bg-slate-950 p-3 shadow-2xl">
-            <div className="relative min-h-[720px] overflow-hidden rounded-[24px]" style={{ backgroundColor: form.backgroundColor, color: form.backgroundImage ? '#FFFFFF' : previewTextColor, fontFamily: form.fontFamily }}>
+            <div className="relative min-h-[720px] overflow-hidden rounded-[24px]" style={{ backgroundColor: form.backgroundColor, color: form.backgroundImage ? '#FFFFFF' : previewTextColor, fontFamily: form.fontFamily === 'Tecna' ? 'var(--font-tecna)' : form.fontFamily }}>
               {form.backgroundImage && (
                 <>
-                  <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${form.backgroundImage})` }} />
+                  <RemoteImage src={form.backgroundImage} alt="" fill width={900} height={1440} sizes="440px" quality={60} className="object-cover" />
                   <div className="absolute inset-0 bg-black/65" />
                   <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/60" />
                 </>
               )}
               <div className="absolute inset-0 opacity-[0.055] fine-grid" />
               <div className="relative p-5">
-                <div className="h-32 overflow-hidden rounded-2xl bg-slate-200 bg-cover bg-center" style={{ backgroundImage: form.headerImage ? `linear-gradient(to top, rgba(0,0,0,.45), transparent), url(${form.headerImage})` : `linear-gradient(135deg, ${form.primaryColor}, ${form.secondaryColor})` }} />
-                <div className="mx-auto -mt-10 h-20 w-20 overflow-hidden rounded-2xl border-4 shadow-xl" style={{ borderColor: form.backgroundColor, backgroundColor: form.primaryColor }}>
-                  {form.logo ? <img src={form.logo} alt="Logo" className="h-full w-full object-cover" /> : <div className="flex h-full w-full items-center justify-center text-2xl font-black text-white">{form.name.charAt(0) || 'O'}</div>}
+                <div className="relative h-32 overflow-hidden rounded-2xl bg-slate-200" style={!form.headerImage ? { background: `linear-gradient(135deg, ${form.primaryColor}, ${form.secondaryColor})` } : undefined}>{form.headerImage && <RemoteImage src={form.headerImage} alt="" fill width={760} height={256} sizes="380px" quality={60} className="object-cover" />}{form.headerImage && <div className="absolute inset-0 bg-gradient-to-t from-black/45 to-transparent" />}</div>
+                <div className="relative mx-auto -mt-10 h-20 w-20 overflow-hidden rounded-2xl border-4 shadow-xl" style={{ borderColor: form.backgroundColor, backgroundColor: form.primaryColor }}>
+                  {form.logo ? <RemoteImage src={form.logo} alt="Logo" fill width={160} height={160} sizes="80px" quality={60} className="object-cover" /> : <div className="flex h-full w-full items-center justify-center text-2xl font-black text-white">{form.name.charAt(0) || 'O'}</div>}
                 </div>
                 <div className="mt-4 text-center">
                   <h3 className="text-2xl font-bold">{form.name || 'Nome do cliente'}</h3>
@@ -428,8 +429,8 @@ export function ClientForm({
                   {form.links.filter((link) => link.isActive && link.title).slice(0, 5).map((link, index) => (
                     <div key={link.id || index} className="flex items-center justify-between gap-3 rounded-xl px-4 py-3.5 text-sm font-semibold shadow-sm" style={{ background: `linear-gradient(135deg, ${form.primaryColor}, ${form.secondaryColor})`, color: '#FFFFFF' }}>
                       <div className="flex min-w-0 items-center gap-3">
-                        <div className="h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-white/15">
-                          {link.icon ? <img src={link.icon} alt={link.title} className="h-full w-full object-cover" /> : <div className="flex h-full w-full items-center justify-center"><Link2 size={16} /></div>}
+                        <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-white/15">
+                          {link.icon ? <RemoteImage src={link.icon} alt={link.title} fill width={80} height={80} sizes="40px" quality={55} className="object-cover" /> : <div className="flex h-full w-full items-center justify-center"><Link2 size={16} /></div>}
                         </div>
                         <div className="min-w-0">
                           <div className="truncate">{link.title}</div>

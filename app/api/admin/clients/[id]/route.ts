@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidateTag } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import {
   parseClientPayload,
@@ -86,6 +87,7 @@ export async function PUT(
       });
     });
 
+    revalidateTag('public-pages');
     return NextResponse.json({ client });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Não foi possível atualizar o cliente.';
@@ -103,6 +105,7 @@ export async function DELETE(
 
   try {
     await prisma.workspace.delete({ where: { id: params.id } });
+    revalidateTag('public-pages');
     return NextResponse.json({ success: true });
   } catch {
     return NextResponse.json({ error: 'Cliente não encontrado.' }, { status: 404 });
