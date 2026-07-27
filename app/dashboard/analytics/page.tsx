@@ -46,7 +46,7 @@ export default async function ClientAnalyticsPage() {
           { label: 'Total de visitas', value: workspace.views.toLocaleString('pt-BR'), icon: Eye },
           { label: 'Total de cliques', value: workspace.clicks.toLocaleString('pt-BR'), icon: MousePointerClick },
           { label: 'Taxa de clique', value: `${clickRate.toFixed(1)}%`, icon: TrendingUp },
-        ].map((stat) => <div key={stat.label} className="admin-card p-6"><div className="flex h-11 w-11 items-center justify-center rounded-xl bg-cyan-50 text-cyan-600"><stat.icon size={20} /></div><div className="mt-5 text-3xl font-bold text-slate-950">{stat.value}</div><div className="mt-1 text-sm font-semibold text-slate-600">{stat.label}</div></div>)}
+        ].map((stat) => <div key={stat.label} className="admin-card p-6"><div className="flex h-11 w-11 items-center justify-center rounded-xl bg-red-50 text-red-600"><stat.icon size={20} /></div><div className="mt-5 text-3xl font-bold text-slate-950">{stat.value}</div><div className="mt-1 text-sm font-semibold text-slate-600">{stat.label}</div></div>)}
       </section>
 
       <section className="admin-card p-5 sm:p-7">
@@ -56,13 +56,13 @@ export default async function ClientAnalyticsPage() {
             <div key={day.key} className="flex h-full flex-col justify-end gap-2">
               <div className="flex flex-1 items-end justify-center gap-1 sm:gap-2">
                 <div title={`${day.views} visualizações`} className="w-3 rounded-t-md bg-slate-300 sm:w-5" style={{ height: `${Math.max((day.views / maxDaily) * 100, day.views ? 4 : 1)}%` }} />
-                <div title={`${day.clicks} cliques`} className="w-3 rounded-t-md bg-cyan-600 sm:w-5" style={{ height: `${Math.max((day.clicks / maxDaily) * 100, day.clicks ? 4 : 1)}%` }} />
+                <div title={`${day.clicks} cliques`} className="w-3 rounded-t-md bg-red-600 sm:w-5" style={{ height: `${Math.max((day.clicks / maxDaily) * 100, day.clicks ? 4 : 1)}%` }} />
               </div>
               <div className="text-center text-[10px] font-semibold capitalize text-slate-400">{day.label}</div>
             </div>
           ))}
         </div>
-        <div className="mt-5 flex items-center justify-center gap-5 text-xs text-slate-500"><span className="inline-flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-sm bg-slate-300" /> Visualizações</span><span className="inline-flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-sm bg-cyan-600" /> Cliques</span></div>
+        <div className="mt-5 flex items-center justify-center gap-5 text-xs text-slate-500"><span className="inline-flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-sm bg-slate-300" /> Visualizações</span><span className="inline-flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-sm bg-red-600" /> Cliques</span></div>
       </section>
 
       <section className="admin-card overflow-hidden">

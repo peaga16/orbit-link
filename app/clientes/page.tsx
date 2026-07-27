@@ -23,17 +23,17 @@ export default async function PublicClientsPage() {
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#070707] px-4 py-8 text-white sm:px-6 sm:py-12">
       <div className="pointer-events-none absolute inset-0 landing-grid opacity-60" />
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-[600px] bg-[radial-gradient(circle_at_50%_0%,rgba(34,211,238,.22),transparent_62%)]" />
-      <div className="pointer-events-none absolute -left-40 top-44 h-[420px] w-[420px] rounded-full bg-violet-600/15 blur-[130px]" />
-      <div className="pointer-events-none absolute -right-40 top-16 h-[420px] w-[420px] rounded-full bg-cyan-400/10 blur-[130px]" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[600px] bg-[radial-gradient(circle_at_50%_0%,rgba(239,35,42,.22),transparent_62%)]" />
+      <div className="pointer-events-none absolute -left-40 top-44 h-[420px] w-[420px] rounded-full bg-red-600/15 blur-[130px]" />
+      <div className="pointer-events-none absolute -right-40 top-16 h-[420px] w-[420px] rounded-full bg-red-400/10 blur-[130px]" />
       <div className="relative mx-auto max-w-6xl">
         <div className="flex items-center justify-between gap-4">
           <Link href="/" className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm font-semibold text-white/70 transition hover:bg-white/[0.08] hover:text-white"><ArrowLeft size={16} /> Voltar</Link>
-          <Link href="/cliente/login" className="rounded-xl bg-cyan-600 px-4 py-2.5 text-sm font-semibold transition hover:bg-cyan-500">Área do cliente</Link>
+          <Link href="/cliente/login" className="rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold transition hover:bg-red-500">Área do cliente</Link>
         </div>
 
         <header className="mx-auto max-w-3xl py-20 text-center sm:py-24">
-          <div className="text-xs font-bold uppercase tracking-[0.28em] text-cyan-500">Diretório público</div>
+          <div className="text-xs font-bold uppercase tracking-[0.28em] text-red-500">Diretório público</div>
           <h1 className="mt-5 text-balance text-5xl font-semibold tracking-[-0.05em] sm:text-6xl">Todas as páginas da Orbit.</h1>
           <p className="mx-auto mt-6 max-w-2xl text-base leading-7 text-white/48">Cada novo cliente cadastrado aparece automaticamente aqui com acesso direto à sua página pública.</p>
         </header>

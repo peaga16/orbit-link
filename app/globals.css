@@ -59,11 +59,11 @@
 }
 
 :root {
-  --orbit-accent: #ee2222;
-  --orbit-accent-strong: #0891b2;
-  --orbit-violet: #7c3aed;
-  --orbit-black: #050608;
-  --orbit-panel: #0b0d12;
+  --orbit-accent: #ef232a;
+  --orbit-accent-strong: #9f0d12;
+  --orbit-red-dark: #9f0d12;
+  --orbit-black: #070707;
+  --orbit-panel: #111111;
 }
 
 * {
@@ -78,8 +78,8 @@ body {
   margin: 0;
   min-height: 100vh;
   font-family: 'Tecna', Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background: #050608;
-  color: #f7fbff;
+  background: #070707;
+  color: #f7f7f7;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -92,33 +92,33 @@ select {
 }
 
 ::selection {
-  background: rgba(34, 211, 238, 0.35);
+  background: rgba(239, 35, 42, 0.35);
   color: white;
 }
 
 .landing-grid {
   background-image:
-    linear-gradient(rgba(34, 211, 238, 0.045) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(124, 58, 237, 0.04) 1px, transparent 1px);
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
   background-size: 48px 48px;
 }
 
 .fine-grid {
   background-image:
-    linear-gradient(rgba(34, 211, 238, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(124, 58, 237, 0.028) 1px, transparent 1px);
+    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
   background-size: 28px 28px;
 }
 
 .orbit-glow {
   background:
-    radial-gradient(circle at 35% 35%, rgba(34, 211, 238, 0.34) 0%, rgba(8, 145, 178, 0.13) 38%, transparent 68%),
-    radial-gradient(circle at 70% 65%, rgba(124, 58, 237, 0.28) 0%, transparent 58%);
+    radial-gradient(circle at 35% 35%, rgba(239, 35, 42, 0.34) 0%, rgba(132, 8, 14, 0.13) 38%, transparent 68%),
+    radial-gradient(circle at 70% 65%, rgba(127, 16, 21, 0.28) 0%, transparent 58%);
   filter: blur(10px);
 }
 
 .tech-beam {
-  background: linear-gradient(90deg, transparent, rgba(34, 211, 238, 0.8), rgba(124, 58, 237, 0.8), transparent);
+  background: linear-gradient(90deg, transparent, rgba(239, 35, 42, 0.8), rgba(127, 16, 21, 0.8), transparent);
   filter: blur(1px);
 }
 
@@ -162,15 +162,15 @@ select {
 
 @layer components {
   .orbit-panel {
-    @apply rounded-2xl border border-cyan-300/10 bg-white/[0.045] shadow-panel backdrop-blur-xl;
+    @apply rounded-2xl border border-white/10 bg-white/[0.045] shadow-panel backdrop-blur-xl;
   }
 
   .orbit-btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-cyan-500 px-5 py-3 font-semibold text-slate-950 shadow-[0_0_35px_rgba(34,211,238,.2)] transition hover:bg-cyan-300 hover:shadow-[0_0_45px_rgba(34,211,238,.3)] active:scale-[0.98];
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-red-600 px-5 py-3 font-semibold text-white shadow-[0_0_35px_rgba(239,35,42,.2)] transition hover:bg-red-500 hover:shadow-[0_0_45px_rgba(239,35,42,.3)] active:scale-[0.98];
   }
 
   .orbit-btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-cyan-200/15 bg-white/[0.04] px-5 py-3 font-semibold text-white transition hover:border-cyan-300/35 hover:bg-cyan-300/[0.08] active:scale-[0.98];
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/[0.04] px-5 py-3 font-semibold text-white transition hover:border-white/30 hover:bg-white/[0.08] active:scale-[0.98];
   }
 
   .admin-card {
@@ -182,7 +182,7 @@ select {
   }
 
   .field-input {
-    @apply w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100;
+    @apply w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-red-400 focus:ring-4 focus:ring-red-100;
   }
 
   .field-help {
@@ -196,15 +196,15 @@ select {
 }
 
 ::-webkit-scrollbar-track {
-  background: #07090d;
+  background: #0a0a0a;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1b2633;
+  background: #2e2e2e;
   border-radius: 999px;
-  border: 2px solid #07090d;
+  border: 2px solid #0a0a0a;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #294259;
+  background: #444444;
 }

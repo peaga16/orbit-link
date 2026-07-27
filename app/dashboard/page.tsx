@@ -38,18 +38,18 @@ export default async function ClientDashboardPage() {
         <div className="absolute -right-20 -top-24 h-72 w-72 rounded-full blur-[80px]" style={{ backgroundColor: `${workspace.primaryColor}44` }} />
         <div className="relative flex flex-col gap-7 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <div className="text-xs font-bold uppercase tracking-[0.25em] text-cyan-400">{workspace.name}</div>
+            <div className="text-xs font-bold uppercase tracking-[0.25em] text-red-400">{workspace.name}</div>
             <h2 className="mt-4 max-w-2xl text-3xl font-bold tracking-tight sm:text-4xl">Sua página, seus dados, seu controle.</h2>
             <p className="mt-4 max-w-xl text-sm leading-6 text-white/45">Os números abaixo são registrados a partir das visitas e cliques na sua página pública.</p>
           </div>
-          <Link href="/dashboard/editar" className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-cyan-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-cyan-500"><Pencil size={17} /> Editar minha página</Link>
+          <Link href="/dashboard/editar" className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-red-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-red-500"><Pencil size={17} /> Editar minha página</Link>
         </div>
       </section>
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {stats.map((stat) => (
           <div key={stat.label} className="admin-card p-5">
-            <div className="flex items-center justify-between"><div className="flex h-11 w-11 items-center justify-center rounded-xl bg-cyan-50 text-cyan-600"><stat.icon size={20} /></div><span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600"><ArrowUpRight size={14} /> Ao vivo</span></div>
+            <div className="flex items-center justify-between"><div className="flex h-11 w-11 items-center justify-center rounded-xl bg-red-50 text-red-600"><stat.icon size={20} /></div><span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600"><ArrowUpRight size={14} /> Ao vivo</span></div>
             <div className="mt-5 text-3xl font-bold tracking-tight text-slate-950">{stat.value}</div>
             <div className="mt-1 text-sm font-semibold text-slate-700">{stat.label}</div>
             <div className="mt-1 text-xs text-slate-400">{stat.detail}</div>
@@ -59,13 +59,13 @@ export default async function ClientDashboardPage() {
 
       <section className="grid gap-6 xl:grid-cols-[1.1fr_.9fr]">
         <div className="admin-card overflow-hidden">
-          <div className="flex items-center justify-between border-b border-slate-200 px-5 py-5 sm:px-6"><div><h3 className="font-bold text-slate-950">Desempenho dos links</h3><p className="mt-1 text-xs text-slate-500">Cliques reais, do maior para o menor.</p></div><Link href="/dashboard/editar#links" className="text-sm font-semibold text-cyan-600">Editar links</Link></div>
+          <div className="flex items-center justify-between border-b border-slate-200 px-5 py-5 sm:px-6"><div><h3 className="font-bold text-slate-950">Desempenho dos links</h3><p className="mt-1 text-xs text-slate-500">Cliques reais, do maior para o menor.</p></div><Link href="/dashboard/editar#links" className="text-sm font-semibold text-red-600">Editar links</Link></div>
           <div className="p-5 sm:p-6">
             <div className="space-y-5">
               {workspace.links.map((link) => (
                 <div key={link.id}>
                   <div className="mb-2 flex items-center justify-between gap-3 text-sm"><span className="truncate font-semibold text-slate-700">{link.title}</span><span className="text-xs font-bold text-slate-500">{formatNumber(link.clicks)} cliques</span></div>
-                  <div className="h-2 overflow-hidden rounded-full bg-slate-100"><div className="h-full rounded-full bg-gradient-to-r from-cyan-600 to-violet-500" style={{ width: `${Math.max((link.clicks / maxLinkClicks) * 100, link.clicks ? 6 : 0)}%` }} /></div>
+                  <div className="h-2 overflow-hidden rounded-full bg-slate-100"><div className="h-full rounded-full bg-gradient-to-r from-red-600 to-red-500" style={{ width: `${Math.max((link.clicks / maxLinkClicks) * 100, link.clicks ? 6 : 0)}%` }} /></div>
                 </div>
               ))}
               {!workspace.links.length && <div className="rounded-xl border border-dashed border-slate-200 p-10 text-center text-sm text-slate-400">Adicione links para começar a medir os cliques.</div>}
@@ -78,7 +78,7 @@ export default async function ClientDashboardPage() {
           <div>
             {workspace.analytics.map((event, index) => (
               <div key={event.id} className={`flex items-center gap-3 px-5 py-4 sm:px-6 ${index > 0 ? 'border-t border-slate-100' : ''}`}>
-                <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${event.eventType === 'click' ? 'bg-cyan-50 text-cyan-600' : 'bg-blue-50 text-blue-600'}`}>{event.eventType === 'click' ? <MousePointerClick size={16} /> : <Eye size={16} />}</div>
+                <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${event.eventType === 'click' ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-blue-600'}`}>{event.eventType === 'click' ? <MousePointerClick size={16} /> : <Eye size={16} />}</div>
                 <div className="min-w-0 flex-1"><div className="text-sm font-semibold text-slate-800">{event.eventType === 'click' ? 'Clique em um link' : 'Nova visualização'}</div><div className="mt-1 text-xs text-slate-400">{new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeStyle: 'short' }).format(event.createdAt)}</div></div>
               </div>
             ))}

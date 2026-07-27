@@ -53,14 +53,14 @@ export default async function AdminDashboardPage() {
 
       <section className="relative overflow-hidden rounded-3xl bg-[#0b0b0b] p-7 text-white shadow-xl sm:p-9">
         <div className="absolute inset-0 fine-grid opacity-40" />
-        <div className="absolute -right-20 -top-24 h-72 w-72 rounded-full bg-cyan-600/20 blur-[80px]" />
+        <div className="absolute -right-20 -top-24 h-72 w-72 rounded-full bg-red-600/20 blur-[80px]" />
         <div className="relative flex flex-col gap-7 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <div className="text-xs font-bold uppercase tracking-[0.25em] text-cyan-400">Painel administrativo</div>
+            <div className="text-xs font-bold uppercase tracking-[0.25em] text-red-400">Painel administrativo</div>
             <h2 className="mt-4 max-w-2xl text-3xl font-bold tracking-tight sm:text-4xl">Tudo que você precisa para gerenciar seus clientes.</h2>
             <p className="mt-4 max-w-xl text-sm leading-6 text-white/45">Cadastre páginas, edite links, personalize a identidade e acompanhe a performance em um só lugar.</p>
           </div>
-          <Link href="/admin/clientes/novo" className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-cyan-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-cyan-500"><Plus size={17} /> Cadastrar cliente</Link>
+          <Link href="/admin/clientes/novo" className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-red-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-red-500"><Plus size={17} /> Cadastrar cliente</Link>
         </div>
       </section>
 
@@ -68,7 +68,7 @@ export default async function AdminDashboardPage() {
         {stats.map((stat) => (
           <div key={stat.label} className="admin-card p-5">
             <div className="flex items-center justify-between">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-cyan-50 text-cyan-600"><stat.icon size={20} /></div>
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-red-50 text-red-600"><stat.icon size={20} /></div>
               <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600"><ArrowUpRight size={14} /> Ativo</span>
             </div>
             <div className="mt-5 text-3xl font-bold tracking-tight text-slate-950">{stat.value}</div>
@@ -82,7 +82,7 @@ export default async function AdminDashboardPage() {
         <div className="admin-card overflow-hidden">
           <div className="flex items-center justify-between border-b border-slate-200 px-5 py-5 sm:px-6">
             <div><h3 className="font-bold text-slate-950">Clientes recentes</h3><p className="mt-1 text-xs text-slate-500">Últimas páginas atualizadas.</p></div>
-            <Link href="/admin/clientes" className="text-sm font-semibold text-cyan-600 hover:text-cyan-500">Ver todos</Link>
+            <Link href="/admin/clientes" className="text-sm font-semibold text-red-600 hover:text-red-500">Ver todos</Link>
           </div>
           <div>
             {clients.slice(0, 5).map((client, index) => (
@@ -109,7 +109,7 @@ export default async function AdminDashboardPage() {
             {clients.slice(0, 5).map((client) => (
               <div key={client.id}>
                 <div className="mb-2 flex items-center justify-between gap-3 text-sm"><span className="truncate font-semibold text-slate-700">{client.name}</span><span className="text-xs font-bold text-slate-500">{formatNumber(client.views)}</span></div>
-                <div className="h-2 overflow-hidden rounded-full bg-slate-100"><div className="h-full rounded-full bg-gradient-to-r from-cyan-600 to-violet-500" style={{ width: `${Math.max((client.views / maxViews) * 100, client.views ? 8 : 0)}%` }} /></div>
+                <div className="h-2 overflow-hidden rounded-full bg-slate-100"><div className="h-full rounded-full bg-gradient-to-r from-red-600 to-red-500" style={{ width: `${Math.max((client.views / maxViews) * 100, client.views ? 8 : 0)}%` }} /></div>
               </div>
             ))}
             {!clients.length && <div className="rounded-xl border border-dashed border-slate-200 p-8 text-center text-sm text-slate-400">Os dados aparecerão após o setup.</div>}
@@ -123,8 +123,8 @@ export default async function AdminDashboardPage() {
           { href: '/admin/clientes', icon: Link2, title: 'Gerenciar links', text: 'Abra um cliente para editar seus links.' },
           { href: '/', icon: Eye, title: 'Ver landing page', text: 'Confira o novo visual público do sistema.' },
         ].map((action) => (
-          <Link key={action.title} href={action.href} className="admin-card group flex items-center gap-4 p-5 transition hover:-translate-y-0.5 hover:border-cyan-200 hover:shadow-md">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-500 transition group-hover:bg-cyan-50 group-hover:text-cyan-600"><action.icon size={20} /></div>
+          <Link key={action.title} href={action.href} className="admin-card group flex items-center gap-4 p-5 transition hover:-translate-y-0.5 hover:border-red-200 hover:shadow-md">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-500 transition group-hover:bg-red-50 group-hover:text-red-600"><action.icon size={20} /></div>
             <div><div className="font-bold text-slate-900">{action.title}</div><div className="mt-1 text-xs text-slate-500">{action.text}</div></div>
           </Link>
         ))}

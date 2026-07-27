@@ -129,9 +129,9 @@ export function parseClientPayload(body: any): ClientPayload {
     theme: ['modern', 'dark', 'minimal', 'vibrant'].includes(text(body?.theme, 30))
       ? text(body?.theme, 30)
       : 'modern',
-    primaryColor: color(body?.primaryColor, '#22D3EE'),
-    secondaryColor: color(body?.secondaryColor, '#7C3AED'),
-    backgroundColor: color(body?.backgroundColor, '#050608'),
+    primaryColor: color(body?.primaryColor, '#EF232A'),
+    secondaryColor: color(body?.secondaryColor, '#111111'),
+    backgroundColor: color(body?.backgroundColor, '#FFFFFF'),
     backgroundImage: normalizeUrl(body?.backgroundImage) || undefined,
     fontFamily: text(body?.fontFamily, 80) || 'Tecna',
     logo: normalizeUrl(body?.logo) || undefined,

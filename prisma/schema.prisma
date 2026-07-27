@@ -32,9 +32,9 @@ model Workspace {
   title           String?
   description     String?
   theme           String      @default("modern")
-  primaryColor    String      @default("#22D3EE")
-  secondaryColor  String      @default("#7C3AED")
-  backgroundColor String      @default("#050608")
+  primaryColor    String      @default("#EF232A")
+  secondaryColor  String      @default("#111111")
+  backgroundColor String      @default("#FFFFFF")
   backgroundImage String?
   fontFamily      String      @default("Tecna")
   logo            String?

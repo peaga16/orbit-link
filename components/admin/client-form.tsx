@@ -66,9 +66,9 @@ function createBlankData(): ClientFormData {
     title: '',
     description: '',
     theme: 'modern',
-    primaryColor: '#22D3EE',
-    secondaryColor: '#7C3AED',
-    backgroundColor: '#050608',
+    primaryColor: '#EF232A',
+    secondaryColor: '#111111',
+    backgroundColor: '#FFFFFF',
     backgroundImage: '',
     fontFamily: 'Tecna',
     logo: '',
@@ -98,7 +98,7 @@ function slugify(value: string) {
 function SectionTitle({ icon: Icon, title, description }: { icon: any; title: string; description: string }) {
   return (
     <div className="mb-6 flex items-start gap-3">
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-cyan-50 text-cyan-600"><Icon size={19} /></div>
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-50 text-red-600"><Icon size={19} /></div>
       <div>
         <h2 className="text-lg font-bold text-slate-950">{title}</h2>
         <p className="mt-1 text-sm text-slate-500">{description}</p>
@@ -224,7 +224,7 @@ export function ClientForm({
           {form.slug && (
             <Link href={`/${form.slug}`} target="_blank" className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"><ExternalLink size={16} /> Abrir página</Link>
           )}
-          <button disabled={saving} className="inline-flex items-center gap-2 rounded-xl bg-cyan-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-cyan-500 disabled:opacity-60">
+          <button disabled={saving} className="inline-flex items-center gap-2 rounded-xl bg-red-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-red-500 disabled:opacity-60">
             {saving ? <Loader2 size={17} className="animate-spin" /> : <Save size={17} />} {saving ? 'Salvando...' : 'Salvar alterações'}
           </button>
         </div>
@@ -264,7 +264,7 @@ export function ClientForm({
               </div>
               <div>
                 <label className="field-label">Endereço da página *</label>
-                <div className="flex rounded-xl border border-slate-200 bg-white focus-within:border-cyan-400 focus-within:ring-4 focus-within:ring-cyan-100">
+                <div className="flex rounded-xl border border-slate-200 bg-white focus-within:border-red-400 focus-within:ring-4 focus-within:ring-red-100">
                   <span className="flex items-center border-r border-slate-200 px-3 text-xs text-slate-400">/</span>
                   <input className="min-w-0 flex-1 rounded-r-xl px-3 py-3 text-sm text-slate-900 outline-none" value={form.slug} onChange={(e) => { setSlugEdited(true); update('slug', slugify(e.target.value)); }} placeholder="northstudio" required />
                 </div>
@@ -281,7 +281,7 @@ export function ClientForm({
               <div className="sm:col-span-2">
                 <label className="flex cursor-pointer items-center justify-between rounded-xl border border-slate-200 p-4">
                   <span><span className="block text-sm font-semibold text-slate-800">Exibir assinatura Orbit</span><span className="mt-1 block text-xs text-slate-500">Mostra a assinatura no rodapé da página.</span></span>
-                  <input type="checkbox" checked={form.showBranding} onChange={(e) => update('showBranding', e.target.checked)} className="h-5 w-5 accent-cyan-600" />
+                  <input type="checkbox" checked={form.showBranding} onChange={(e) => update('showBranding', e.target.checked)} className="h-5 w-5 accent-red-600" />
                 </label>
               </div>
             </div>
@@ -342,7 +342,7 @@ export function ClientForm({
           <section id="links" className="admin-card p-5 sm:p-7">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <SectionTitle icon={Link2} title="Links da página" description="Cada link pode ter título, descrição e uma imagem própria enviada como anexo." />
-              <button type="button" onClick={addLink} className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl border border-cyan-200 bg-cyan-50 px-4 py-2.5 text-sm font-semibold text-cyan-600 transition hover:bg-cyan-100"><Plus size={16} /> Adicionar link</button>
+              <button type="button" onClick={addLink} className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-sm font-semibold text-red-600 transition hover:bg-red-100"><Plus size={16} /> Adicionar link</button>
             </div>
             <div className="space-y-4">
               {form.links.length === 0 && <div className="rounded-xl border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500">Nenhum link adicionado.</div>}
@@ -351,7 +351,7 @@ export function ClientForm({
                   <div className="mb-4 flex items-center justify-between">
                     <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-slate-400"><GripVertical size={16} /> Link {index + 1}</div>
                     <div className="flex items-center gap-3">
-                      <label className="flex items-center gap-2 text-xs font-semibold text-slate-500"><input type="checkbox" checked={link.isActive} onChange={(e) => updateLink(index, 'isActive', e.target.checked)} className="accent-cyan-600" /> Ativo</label>
+                      <label className="flex items-center gap-2 text-xs font-semibold text-slate-500"><input type="checkbox" checked={link.isActive} onChange={(e) => updateLink(index, 'isActive', e.target.checked)} className="accent-red-600" /> Ativo</label>
                       <button type="button" onClick={() => removeLink(index)} className="rounded-lg p-2 text-slate-400 transition hover:bg-red-50 hover:text-red-600" aria-label="Remover link"><Trash2 size={16} /></button>
                     </div>
                   </div>
@@ -377,7 +377,7 @@ export function ClientForm({
           <section className="admin-card p-5 sm:p-7">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <SectionTitle icon={QrCode} title="Pix" description="Adicione uma chave Pix e gere o QR Code automaticamente." />
-              <button type="button" onClick={addPix} className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl border border-cyan-200 bg-cyan-50 px-4 py-2.5 text-sm font-semibold text-cyan-600 transition hover:bg-cyan-100"><Plus size={16} /> Adicionar Pix</button>
+              <button type="button" onClick={addPix} className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-sm font-semibold text-red-600 transition hover:bg-red-100"><Plus size={16} /> Adicionar Pix</button>
             </div>
             <div className="space-y-4">
               {form.pixQRCodes.length === 0 && <div className="rounded-xl border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500">O Pix é opcional.</div>}

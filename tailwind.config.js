@@ -12,11 +12,11 @@ module.exports = {
         tecna: ['Tecna', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
       boxShadow: {
-        glow: '0 0 70px rgba(34, 211, 238, 0.22), 0 0 120px rgba(124, 58, 237, 0.10)',
+        glow: '0 0 70px rgba(239, 35, 42, 0.22), 0 0 120px rgba(127, 16, 21, 0.10)',
         panel: '0 24px 80px rgba(0, 0, 0, 0.36)',
       },
       backgroundImage: {
-        'orbit-radial': 'radial-gradient(circle at center, rgba(34,211,238,.18), transparent 62%)',
+        'orbit-radial': 'radial-gradient(circle at center, rgba(239,35,42,.18), transparent 62%)',
       },
     },
   },

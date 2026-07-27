@@ -81,7 +81,7 @@ export function ImageUpload({
             disabled={uploading}
             className="flex min-h-32 w-full flex-col items-center justify-center gap-3 p-5 text-center transition hover:bg-white disabled:opacity-60"
           >
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-cyan-50 text-cyan-600">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-red-50 text-red-600">
               {uploading ? <Loader2 size={20} className="animate-spin" /> : <ImageIcon size={20} />}
             </div>
             <div>

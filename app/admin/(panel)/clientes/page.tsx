@@ -33,7 +33,7 @@ export default async function ClientsPage({ searchParams }: { searchParams?: { q
           <h2 className="text-2xl font-bold tracking-tight text-slate-950">Clientes cadastrados</h2>
           <p className="mt-1 text-sm text-slate-500">Edite páginas, links, aparência e status de publicação.</p>
         </div>
-        <Link href="/admin/clientes/novo" className="inline-flex items-center justify-center gap-2 rounded-xl bg-cyan-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-cyan-500"><Plus size={17} /> Novo cliente</Link>
+        <Link href="/admin/clientes/novo" className="inline-flex items-center justify-center gap-2 rounded-xl bg-red-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-red-500"><Plus size={17} /> Novo cliente</Link>
       </div>
 
       {databaseError && (
@@ -42,7 +42,7 @@ export default async function ClientsPage({ searchParams }: { searchParams?: { q
 
       <form className="admin-card flex flex-col gap-3 p-4 sm:flex-row" action="/admin/clientes">
         <div className="relative max-w-md flex-1"><Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={17} /><input name="q" defaultValue={query} className="field-input pl-11" placeholder="Pesquisar por nome ou endereço..." /></div>
-        <button className="rounded-xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-cyan-600">Pesquisar</button>
+        <button className="rounded-xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-red-600">Pesquisar</button>
         {query && <Link href="/admin/clientes" className="rounded-xl border border-slate-200 px-5 py-3 text-center text-sm font-semibold text-slate-600 transition hover:bg-slate-50">Limpar</Link>}
       </form>
 
@@ -69,7 +69,7 @@ export default async function ClientsPage({ searchParams }: { searchParams?: { q
                 <div><div className="text-sm font-bold text-slate-900">{client.clicks}</div><div className="text-[10px] text-slate-400">Cliques</div></div>
               </div>
               <div className="mt-5 flex flex-wrap gap-2">
-                <Link href={`/admin/clientes/${client.id}`} className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg bg-slate-950 px-3 py-2 text-xs font-semibold text-white transition hover:bg-cyan-600"><Edit3 size={14} /> Editar</Link>
+                <Link href={`/admin/clientes/${client.id}`} className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg bg-slate-950 px-3 py-2 text-xs font-semibold text-white transition hover:bg-red-600"><Edit3 size={14} /> Editar</Link>
                 <Link href={`/${client.slug}`} target="_blank" className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 transition hover:bg-slate-50"><ExternalLink size={14} /> Abrir</Link>
                 <DeleteClientButton id={client.id} name={client.name} />
               </div>
@@ -80,10 +80,10 @@ export default async function ClientsPage({ searchParams }: { searchParams?: { q
 
       {!clients.length && !databaseError && (
         <div className="admin-card flex flex-col items-center justify-center p-14 text-center">
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-cyan-50 text-cyan-600"><Link2 size={27} /></div>
+          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-red-50 text-red-600"><Link2 size={27} /></div>
           <h3 className="mt-5 text-lg font-bold text-slate-900">{query ? 'Nenhum cliente encontrado' : 'Nenhum cliente cadastrado'}</h3>
           <p className="mt-2 max-w-sm text-sm text-slate-500">{query ? 'Tente pesquisar usando outro nome ou endereço.' : 'Cadastre a primeira página ou execute o seed para incluir os exemplos.'}</p>
-          <Link href="/admin/clientes/novo" className="mt-5 inline-flex items-center gap-2 rounded-xl bg-cyan-600 px-5 py-3 text-sm font-semibold text-white"><Plus size={17} /> Cadastrar cliente</Link>
+          <Link href="/admin/clientes/novo" className="mt-5 inline-flex items-center gap-2 rounded-xl bg-red-600 px-5 py-3 text-sm font-semibold text-white"><Plus size={17} /> Cadastrar cliente</Link>
         </div>
       )}
     </div>

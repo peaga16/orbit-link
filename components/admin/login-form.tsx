@@ -40,12 +40,12 @@ export function LoginForm() {
   return (
     <div className="flex min-h-screen bg-[#080808]">
       <div className="relative hidden w-1/2 overflow-hidden border-r border-white/10 landing-grid lg:block">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_35%_35%,rgba(34,211,238,.24),transparent_52%)]" />
-        <div className="absolute -left-20 top-24 h-72 w-72 rounded-full bg-cyan-600/20 blur-[100px]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_35%_35%,rgba(239,35,42,.24),transparent_52%)]" />
+        <div className="absolute -left-20 top-24 h-72 w-72 rounded-full bg-red-600/20 blur-[100px]" />
         <div className="relative flex h-full flex-col justify-between p-12">
           <Link href="/" className="inline-flex items-center gap-2 text-sm font-medium text-white/50 transition hover:text-white"><ArrowLeft size={16} /> Voltar ao site</Link>
           <div className="max-w-xl">
-            <div className="inline-flex items-center gap-2 rounded-full border border-cyan-500/20 bg-cyan-500/10 px-3 py-1.5 text-xs font-semibold text-cyan-300"><LockKeyhole size={14} /> Ambiente administrativo</div>
+            <div className="inline-flex items-center gap-2 rounded-full border border-red-500/20 bg-red-500/10 px-3 py-1.5 text-xs font-semibold text-red-300"><LockKeyhole size={14} /> Ambiente administrativo</div>
             <h1 className="mt-6 text-balance text-5xl font-semibold leading-[1.05] tracking-[-0.045em] text-white">Gerencie cada cliente sem sair da sua órbita.</h1>
             <p className="mt-5 max-w-lg text-lg leading-8 text-white/45">Cadastre páginas, organize links, personalize a identidade e acompanhe o desempenho em um painel moderno.</p>
           </div>
@@ -63,10 +63,10 @@ export function LoginForm() {
       <div className="flex w-full items-center justify-center px-5 py-12 lg:w-1/2">
         <div className="w-full max-w-md">
           <Link href="/" className="mb-10 inline-flex items-center gap-3 lg:hidden">
-            <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-400 to-violet-700"><div className="h-4 w-4 rounded-full border-2 border-white" /><div className="absolute h-7 w-7 rotate-45 rounded-full border border-white/50" /></div>
+            <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-red-500 to-red-900"><div className="h-4 w-4 rounded-full border-2 border-white" /><div className="absolute h-7 w-7 rotate-45 rounded-full border border-white/50" /></div>
             <span className="font-black tracking-[0.18em] text-white">ORBIT</span>
           </Link>
-          <div className="text-xs font-bold uppercase tracking-[0.24em] text-cyan-500">Bem-vindo de volta</div>
+          <div className="text-xs font-bold uppercase tracking-[0.24em] text-red-500">Bem-vindo de volta</div>
           <h2 className="mt-3 text-3xl font-bold tracking-tight text-white">Acesse o administrador</h2>
           <p className="mt-3 text-sm leading-6 text-white/40">Use as credenciais administrativas configuradas no arquivo <code className="rounded bg-white/5 px-1.5 py-1 text-white/60">.env</code>.</p>
 
@@ -75,21 +75,21 @@ export function LoginForm() {
               <label className="mb-2 block text-sm font-semibold text-white/70">E-mail</label>
               <div className="relative">
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30" size={18} />
-                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required className="w-full rounded-xl border border-white/10 bg-white/[0.045] py-3.5 pl-12 pr-4 text-white outline-none transition placeholder:text-white/20 focus:border-cyan-500/50 focus:ring-4 focus:ring-cyan-500/10" placeholder="admin@orbitlink.com" />
+                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required className="w-full rounded-xl border border-white/10 bg-white/[0.045] py-3.5 pl-12 pr-4 text-white outline-none transition placeholder:text-white/20 focus:border-red-500/50 focus:ring-4 focus:ring-red-500/10" placeholder="admin@orbitlink.com" />
               </div>
             </div>
             <div>
               <label className="mb-2 block text-sm font-semibold text-white/70">Senha</label>
               <div className="relative">
                 <LockKeyhole className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30" size={18} />
-                <input type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} required className="w-full rounded-xl border border-white/10 bg-white/[0.045] py-3.5 pl-12 pr-12 text-white outline-none transition placeholder:text-white/20 focus:border-cyan-500/50 focus:ring-4 focus:ring-cyan-500/10" placeholder="Sua senha" />
+                <input type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} required className="w-full rounded-xl border border-white/10 bg-white/[0.045] py-3.5 pl-12 pr-12 text-white outline-none transition placeholder:text-white/20 focus:border-red-500/50 focus:ring-4 focus:ring-red-500/10" placeholder="Sua senha" />
                 <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-white/30 transition hover:text-white" aria-label="Mostrar senha">{showPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button>
               </div>
             </div>
 
             {error && <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300">{error}</div>}
 
-            <button disabled={loading} className="flex w-full items-center justify-center gap-2 rounded-xl bg-cyan-600 px-5 py-3.5 font-semibold text-white transition hover:bg-cyan-500 disabled:cursor-not-allowed disabled:opacity-60">
+            <button disabled={loading} className="flex w-full items-center justify-center gap-2 rounded-xl bg-red-600 px-5 py-3.5 font-semibold text-white transition hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-60">
               {loading ? <Loader2 className="animate-spin" size={18} /> : <>Entrar no painel <ArrowRight size={18} /></>}
             </button>
           </form>

@@ -25,13 +25,13 @@ const navItems = [
 function Logo() {
   return (
     <div className="flex items-center gap-3">
-      <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-400 to-violet-700 shadow-[0_0_30px_rgba(34,211,238,.22)]">
+      <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-red-500 to-red-900 shadow-[0_0_30px_rgba(239,35,42,.22)]">
         <div className="h-4 w-4 rounded-full border-2 border-white" />
         <div className="absolute h-7 w-7 rotate-45 rounded-full border border-white/50" />
       </div>
       <div>
         <div className="text-base font-black tracking-[0.17em] text-white">ORBIT</div>
-        <div className="text-[8px] font-semibold uppercase tracking-[0.25em] text-cyan-400">Admin</div>
+        <div className="text-[8px] font-semibold uppercase tracking-[0.25em] text-red-400">Admin</div>
       </div>
     </div>
   );
@@ -78,7 +78,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                 onClick={() => setMobileOpen(false)}
                 className={`flex items-center justify-between rounded-xl px-3 py-3 text-sm font-medium transition ${
                   active
-                    ? 'bg-cyan-600 text-white shadow-[0_10px_30px_rgba(34,211,238,.22)]'
+                    ? 'bg-red-600 text-white shadow-[0_10px_30px_rgba(239,35,42,.22)]'
                     : 'text-white/55 hover:bg-white/[0.055] hover:text-white'
                 }`}
               >
@@ -102,14 +102,14 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       <div className="border-t border-white/10 p-3">
         <div className="mb-3 rounded-xl border border-white/10 bg-white/[0.035] p-3">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-cyan-500/15 text-sm font-bold text-cyan-300">A</div>
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-red-500/15 text-sm font-bold text-red-300">A</div>
             <div className="min-w-0">
               <div className="truncate text-sm font-semibold text-white">Administrador</div>
               <div className="truncate text-[11px] text-white/35">Plano interno</div>
             </div>
           </div>
         </div>
-        <button onClick={logout} className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-white/45 transition hover:bg-cyan-500/10 hover:text-cyan-300">
+        <button onClick={logout} className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-white/45 transition hover:bg-red-500/10 hover:text-red-300">
           <LogOut size={18} /> Sair do painel
         </button>
       </div>
@@ -131,12 +131,12 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           <div className="flex items-center gap-3">
             <button onClick={() => setMobileOpen(true)} className="rounded-xl border border-slate-200 p-2.5 text-slate-600 lg:hidden" aria-label="Abrir menu"><Menu size={20} /></button>
             <div>
-              <div className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-600">Orbit Admin</div>
+              <div className="text-xs font-semibold uppercase tracking-[0.18em] text-red-600">Orbit Admin</div>
               <h1 className="mt-1 text-xl font-bold tracking-tight text-slate-950">{title}</h1>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <Link href="/admin/clientes/novo" className="hidden items-center gap-2 rounded-xl bg-cyan-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-cyan-500 sm:inline-flex">
+            <Link href="/admin/clientes/novo" className="hidden items-center gap-2 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-red-500 sm:inline-flex">
               <Plus size={17} /> Novo cliente
             </Link>
           </div>
