@@ -93,26 +93,6 @@ select {
 }
 
 
-@keyframes orbit-spin-slow {
-  from { transform: translateX(-50%) rotate(0deg); }
-  to { transform: translateX(-50%) rotate(360deg); }
-}
-
-@keyframes orbit-drift {
-  0%, 100% { transform: translate3d(0, 0, 0); }
-  50% { transform: translate3d(0, 10px, 0); }
-}
-
-@keyframes orbit-hero {
-  0%, 100% { transform: translateY(0) scale(1); }
-  50% { transform: translateY(-10px) scale(1.01); }
-}
-
-@keyframes orbit-blink {
-  0%, 100% { opacity: .25; }
-  50% { opacity: 1; }
-}
-
 
 .space-stars {
   background-image:
@@ -128,21 +108,6 @@ select {
     radial-gradient(circle at 92% 82%, rgba(255,255,255,.5) 0 1px, transparent 1.8px);
 }
 
-.animate-orbit-spin-slow {
-  animation: orbit-spin-slow 22s linear infinite;
-}
-
-.animate-orbit-drift {
-  animation: orbit-drift 5s ease-in-out infinite;
-}
-
-.animate-orbit-hero {
-  animation: orbit-hero 6.5s ease-in-out infinite;
-}
-
-.animate-orbit-blink {
-  animation: orbit-blink 3s ease-in-out infinite;
-}
 .animate-orbit-float {
   animation: orbit-float 6s ease-in-out infinite;
 }
@@ -213,11 +178,7 @@ select {
 @media (max-width: 768px) {
   .animate-orbit-float,
   .animate-orbit-pulse,
-  .animate-orbit-scan,
-  .animate-orbit-spin-slow,
-  .animate-orbit-drift,
-  .animate-orbit-hero,
-  .animate-orbit-blink {
+  .animate-orbit-scan {
     animation: none;
   }
 
@@ -318,22 +279,7 @@ select {
   }
 }
 
-/* Hero espacial da landing: animações leves apenas com transform/opacity. */
-@keyframes orbit-mascot-float {
-  0%, 100% { transform: translateX(-50%) translateY(0) rotate(-0.35deg); }
-  50% { transform: translateX(-50%) translateY(-13px) rotate(0.45deg); }
-}
-
-@keyframes orbit-mascot-shadow {
-  0%, 100% { transform: translateX(-50%) scaleX(1); opacity: .72; }
-  50% { transform: translateX(-50%) scaleX(.86); opacity: .46; }
-}
-
-@keyframes orbit-planet-float {
-  0%, 100% { transform: translate3d(0, 0, 0) rotate(-3deg); }
-  50% { transform: translate3d(-9px, -12px, 0) rotate(3deg); }
-}
-
+/* Hero orbital da landing: profundidade com elementos atrás e à frente da prévia. */
 @keyframes orbit-space-ring-spin {
   from { transform: translate(-50%, -50%) rotate(0deg); }
   to { transform: translate(-50%, -50%) rotate(360deg); }
@@ -342,6 +288,11 @@ select {
 @keyframes orbit-space-ring-spin-reverse {
   from { transform: translate(-50%, -50%) rotate(360deg); }
   to { transform: translate(-50%, -50%) rotate(0deg); }
+}
+
+@keyframes orbit-preview-float {
+  0%, 100% { transform: translateY(0) rotate(-0.2deg); }
+  50% { transform: translateY(-12px) rotate(0.25deg); }
 }
 
 @keyframes orbit-holo-bob {
@@ -354,21 +305,6 @@ select {
   50% { opacity: 1; transform: scale(1.18); }
 }
 
-.orbit-mascot-float {
-  animation: orbit-mascot-float 6.8s ease-in-out infinite;
-  will-change: transform;
-}
-
-.orbit-mascot-shadow {
-  animation: orbit-mascot-shadow 6.8s ease-in-out infinite;
-  will-change: transform, opacity;
-}
-
-.orbit-planet-float {
-  animation: orbit-planet-float 5.4s ease-in-out infinite;
-  will-change: transform;
-}
-
 .orbit-space-ring {
   animation: orbit-space-ring-spin 24s linear infinite;
   will-change: transform;
@@ -379,9 +315,24 @@ select {
   animation-duration: 32s;
 }
 
+.orbit-space-ring-front {
+  animation-duration: 29s;
+  box-shadow: 0 0 36px rgba(239, 35, 42, .045);
+  mask-image: linear-gradient(90deg, transparent 3%, #000 24%, #000 76%, transparent 97%);
+}
+
+.orbit-preview-float {
+  animation: orbit-preview-float 6.8s ease-in-out infinite;
+  will-change: transform;
+}
+
 .orbit-holo-card {
   animation: orbit-holo-bob 5.8s ease-in-out infinite;
   will-change: transform;
+}
+
+.orbit-holo-card-back {
+  filter: saturate(.8);
 }
 
 .orbit-star-twinkle {
@@ -400,9 +351,7 @@ select {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .orbit-mascot-float,
-  .orbit-mascot-shadow,
-  .orbit-planet-float,
+  .orbit-preview-float,
   .orbit-space-ring,
   .orbit-holo-card,
   .orbit-star-twinkle {

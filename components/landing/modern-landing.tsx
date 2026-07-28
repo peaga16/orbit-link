@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import {
   ArrowRight,
@@ -18,6 +17,7 @@ import {
   Zap,
 } from 'lucide-react';
 import { RemoteImage } from '@/components/ui/remote-image';
+import Image from 'next/image';
 
 export type LandingClient = {
   id: string;
@@ -77,77 +77,120 @@ function formatNumber(value: number) {
 
 function OrbitLogo({ compact = false }: { compact?: boolean }) {
   return (
-    <div className="flex items-center gap-3">
-      <div className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl border border-red-300/30 bg-gradient-to-br from-red-500 via-red-600 to-red-900 shadow-[0_0_34px_rgba(239,35,42,.28)]">
-        <div className="absolute inset-x-1 top-0 h-px bg-white/80" />
-        <div className="h-4 w-4 rounded-full border-2 border-white" />
-        <div className="absolute h-7 w-7 rotate-45 rounded-full border border-white/55" />
-      </div>
-      {!compact && (
-        <div className="leading-none">
-          <div className="text-lg font-black tracking-[0.18em] text-white">ORBIT</div>
-          <div className="mt-1 text-[9px] font-semibold uppercase tracking-[0.28em] text-red-300">Links profissionais</div>
-        </div>
-      )}
+    <div className="relative">
+      <Image
+        src="/images/logos/logobrancavermelha1.png"
+        alt="Orbit"
+        width={compact ? 46 : 150}
+        height={compact ? 46 : 50}
+        priority
+        className={`object-contain ${
+          compact ? 'h-11 w-11' : 'h-12 w-auto'
+        }`}
+      />
     </div>
   );
 }
 
-function SpaceHeroVisual({ client }: { client?: LandingClient }) {
+function PagePreview({ client }: { client?: LandingClient }) {
+  const primary = client?.primaryColor || '#EF232A';
+  const secondary = client?.secondaryColor || '#9F0D12';
+  const background = client?.backgroundColor || '#070707';
+  const links = client?.links?.slice(0, 4) || [
+    { id: '1', title: 'Conheça nosso trabalho', icon: null },
+    { id: '2', title: 'Fale pelo WhatsApp', icon: null },
+    { id: '3', title: 'Veja nosso portfólio', icon: null },
+  ];
+
+  return (
+    <div className="relative mx-auto w-full max-w-[390px] rounded-[36px] border border-red-200/10 bg-[#111111] p-3 shadow-[0_40px_120px_rgba(0,0,0,.78),0_0_65px_rgba(239,35,42,.08)]">
+      <div className="relative min-h-[620px] overflow-hidden rounded-[27px]" style={{ backgroundColor: background }}>
+        {client?.backgroundImage && (
+          <>
+            <RemoteImage src={client.backgroundImage} alt="" fill priority width={780} height={1240} sizes="390px" quality={65} className="object-cover" />
+            <div className="absolute inset-0 bg-black/65" />
+          </>
+        )}
+        <div className="absolute inset-0 fine-grid opacity-45" />
+        <div className="relative p-5">
+          <div className="relative h-36 overflow-hidden rounded-2xl" style={!client?.headerImage ? { background: `linear-gradient(135deg, ${primary}, ${secondary})` } : undefined}>
+            {client?.headerImage && <RemoteImage src={client.headerImage} alt="" fill priority width={780} height={288} sizes="390px" quality={68} className="object-cover" />}
+            {client?.headerImage && <div className="absolute inset-0 bg-gradient-to-t from-black/65 to-transparent" />}
+          </div>
+          <div className="relative mx-auto -mt-11 flex h-[88px] w-[88px] items-center justify-center overflow-hidden rounded-3xl border-4 border-[#111111] text-2xl font-black text-white shadow-xl" style={{ backgroundColor: primary }}>
+            {client?.logo ? <RemoteImage src={client.logo} alt="" fill width={176} height={176} sizes="88px" quality={70} className="object-cover" /> : (client?.name?.charAt(0) || 'O')}
+          </div>
+          <div className="mt-4 text-center text-white">
+            <h3 className="text-2xl font-black">{client?.name || 'Sua marca'}</h3>
+            <p className="mt-2 text-xs font-semibold" style={{ color: primary }}>{client?.title || 'Tudo que importa em um só lugar'}</p>
+          </div>
+          <div className="mt-6 space-y-3">
+            {links.map((link) => (
+              <div key={link.id} className="flex items-center justify-between rounded-2xl p-3.5 text-sm font-semibold text-white shadow-lg" style={{ background: `linear-gradient(135deg, ${primary}, ${secondary})` }}>
+                <div className="flex min-w-0 items-center gap-3">
+                  <div className="relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white/15">
+                    {link.icon ? <RemoteImage src={link.icon} alt="" fill width={88} height={88} sizes="44px" quality={65} className="object-cover" /> : <Link2 size={17} />}
+                  </div>
+                  <span className="truncate">{link.title}</span>
+                </div>
+                <ChevronRight size={16} className="opacity-60" />
+              </div>
+            ))}
+          </div>
+          <div className="mt-5 rounded-2xl border border-white/10 bg-black/35 p-4 text-center text-white backdrop-blur-xl">
+            <QrCode className="mx-auto" size={28} style={{ color: primary }} />
+            <div className="mt-2 text-xs font-bold">Pagamento via Pix</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function OrbitalHeroPreview({ client }: { client?: LandingClient }) {
   const publicPath = client ? `/${client.slug}` : '/sua-marca';
 
   return (
-    <div className="relative mx-auto min-h-[570px] w-full max-w-[620px] sm:min-h-[650px] lg:min-h-[720px]" aria-label="Mascote astronauta da Orbit em um cenário espacial animado">
-      <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[42px]">
-        <div className="space-stars absolute inset-0 opacity-90" />
-        <div className="absolute left-1/2 top-[48%] h-[440px] w-[440px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(239,35,42,.20)_0%,rgba(125,18,24,.08)_42%,transparent_70%)] blur-2xl" />
-        <div className="orbit-space-ring absolute left-1/2 top-[49%] h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-red-300/20" />
-        <div className="orbit-space-ring orbit-space-ring-reverse absolute left-1/2 top-[49%] h-[330px] w-[520px] -translate-x-1/2 -translate-y-1/2 rounded-[50%] border border-dashed border-white/10" />
-        <div className="absolute left-1/2 top-[49%] h-[260px] w-[520px] -translate-x-1/2 -translate-y-1/2 rotate-[-16deg] rounded-[50%] border border-red-300/10" />
-        <div className="absolute left-[13%] top-[20%] h-1.5 w-1.5 rounded-full bg-white shadow-[0_0_16px_rgba(255,255,255,.9)] orbit-star-twinkle" />
-        <div className="absolute right-[16%] top-[18%] h-2 w-2 rounded-full bg-red-300 shadow-[0_0_20px_rgba(252,165,165,.95)] orbit-star-twinkle [animation-delay:1.2s]" />
-        <div className="absolute bottom-[19%] left-[17%] h-2 w-2 rounded-full bg-white/90 shadow-[0_0_18px_rgba(255,255,255,.75)] orbit-star-twinkle [animation-delay:2.1s]" />
+    <div className="relative mx-auto min-h-[690px] w-full max-w-[650px] lg:min-h-[735px]" aria-label="Prévia animada de uma página Orbit">
+      <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[44px]">
+        <div className="space-stars absolute inset-0 opacity-85" />
+        <div className="absolute left-1/2 top-1/2 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(239,35,42,.18)_0%,rgba(125,18,24,.07)_42%,transparent_70%)] blur-2xl" />
+        <div className="orbit-space-ring absolute left-1/2 top-1/2 h-[445px] w-[445px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-red-300/20" />
+        <div className="orbit-space-ring orbit-space-ring-reverse absolute left-1/2 top-1/2 h-[330px] w-[610px] -translate-x-1/2 -translate-y-1/2 rounded-[50%] border border-dashed border-white/10" />
+        <div className="absolute left-1/2 top-1/2 h-[270px] w-[600px] -translate-x-1/2 -translate-y-1/2 rotate-[-15deg] rounded-[50%] border border-red-300/10" />
+        <div className="absolute left-[11%] top-[17%] h-1.5 w-1.5 rounded-full bg-white shadow-[0_0_16px_rgba(255,255,255,.9)] orbit-star-twinkle" />
+        <div className="absolute right-[13%] top-[19%] h-2 w-2 rounded-full bg-red-300 shadow-[0_0_20px_rgba(252,165,165,.95)] orbit-star-twinkle [animation-delay:1.2s]" />
+        <div className="absolute bottom-[17%] left-[14%] h-2 w-2 rounded-full bg-white/90 shadow-[0_0_18px_rgba(255,255,255,.75)] orbit-star-twinkle [animation-delay:2.1s]" />
       </div>
 
-      <div className="orbit-planet-float pointer-events-none absolute right-[2%] top-[8%] z-30 h-[105px] w-[145px] sm:right-[4%] sm:top-[7%] sm:h-[125px] sm:w-[174px]">
-        <Image
-          src="/mascot/orbit-planet.png"
-          alt="Planeta ilustrado da identidade Orbit"
-          fill
-          priority
-          sizes="174px"
-          className="object-contain drop-shadow-[0_0_28px_rgba(239,35,42,.24)]"
-        />
-      </div>
-
-      <div className="orbit-mascot-float pointer-events-none absolute bottom-0 left-1/2 z-20 h-[560px] w-[260px] -translate-x-1/2 sm:h-[640px] sm:w-[295px] lg:h-[700px] lg:w-[322px]">
-        <Image
-          src="/mascot/orbit-astronaut.png"
-          alt="Mascote astronauta da Orbit"
-          fill
-          priority
-          sizes="(max-width: 640px) 260px, (max-width: 1024px) 295px, 322px"
-          className="object-contain object-bottom drop-shadow-[0_28px_45px_rgba(0,0,0,.62)]"
-        />
-      </div>
-
-      <div className="orbit-mascot-shadow pointer-events-none absolute bottom-2 left-1/2 z-10 h-10 w-64 -translate-x-1/2 rounded-[50%] bg-black/65 blur-xl" />
-
-      <div className="orbit-holo-card absolute left-0 top-[20%] z-40 hidden w-[190px] rounded-2xl border border-red-300/20 bg-black/65 p-4 shadow-[0_20px_60px_rgba(0,0,0,.45),0_0_35px_rgba(239,35,42,.08)] backdrop-blur-xl sm:block">
+      <div className="orbit-holo-card orbit-holo-card-back absolute left-[2%] top-[16%] z-0 hidden w-[188px] rounded-2xl border border-white/10 bg-black/45 p-4 opacity-70 shadow-[0_20px_60px_rgba(0,0,0,.35)] backdrop-blur-md sm:block">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-500/15 text-red-300"><Link2 size={18} /></div>
           <div><div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/35">Conteúdo</div><div className="mt-1 text-sm font-semibold text-white">Links organizados</div></div>
         </div>
       </div>
 
-      <div className="orbit-holo-card absolute right-0 top-[42%] z-40 hidden w-[190px] rounded-2xl border border-white/10 bg-black/65 p-4 shadow-[0_20px_60px_rgba(0,0,0,.45)] backdrop-blur-xl sm:block [animation-delay:1.1s]">
+      <div className="orbit-holo-card orbit-holo-card-back absolute bottom-[15%] right-[1%] z-0 hidden w-[184px] rounded-2xl border border-red-300/15 bg-black/45 p-4 opacity-65 shadow-[0_20px_60px_rgba(0,0,0,.35)] backdrop-blur-md sm:block [animation-delay:1.4s]">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/[0.07] text-red-300"><BarChart3 size={18} /></div>
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/[0.06] text-red-300"><BarChart3 size={18} /></div>
           <div><div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/35">Resultados</div><div className="mt-1 text-sm font-semibold text-white">Métricas reais</div></div>
         </div>
       </div>
 
-      <div className="orbit-holo-card absolute bottom-[12%] left-[1%] z-40 w-[210px] rounded-2xl border border-red-300/20 bg-black/70 p-4 shadow-[0_20px_60px_rgba(0,0,0,.5),0_0_35px_rgba(239,35,42,.08)] backdrop-blur-xl [animation-delay:1.8s] sm:left-[4%]">
+      <div className="orbit-preview-float relative z-20 mx-auto w-full max-w-[390px] pt-8 sm:pt-12">
+        <PagePreview client={client} />
+      </div>
+
+      <div className="orbit-space-ring orbit-space-ring-front pointer-events-none absolute left-1/2 top-1/2 z-30 h-[245px] w-[610px] -translate-x-1/2 -translate-y-1/2 rotate-[18deg] rounded-[50%] border border-red-300/15" />
+
+      <div className="orbit-holo-card absolute -left-1 top-[44%] z-40 hidden w-[196px] rounded-2xl border border-red-300/20 bg-black/72 p-4 shadow-[0_20px_60px_rgba(0,0,0,.5),0_0_35px_rgba(239,35,42,.08)] backdrop-blur-xl sm:block [animation-delay:.7s]">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-500/15 text-red-300"><Palette size={18} /></div>
+          <div><div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/35">Personalização</div><div className="mt-1 text-sm font-semibold text-white">A sua identidade</div></div>
+        </div>
+      </div>
+
+      <div className="orbit-holo-card absolute bottom-[5%] right-[1%] z-40 w-[215px] rounded-2xl border border-red-300/20 bg-black/75 p-4 shadow-[0_20px_60px_rgba(0,0,0,.5),0_0_35px_rgba(239,35,42,.08)] backdrop-blur-xl [animation-delay:1.8s] sm:right-[3%]">
         <div className="flex items-center justify-between gap-3">
           <div className="min-w-0">
             <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-red-300">Página publicada</div>
@@ -158,7 +201,7 @@ function SpaceHeroVisual({ client }: { client?: LandingClient }) {
         </div>
       </div>
 
-      <div className="absolute bottom-[8%] right-[1%] z-40 hidden items-center gap-2 rounded-full border border-red-300/20 bg-red-500/10 px-3 py-2 text-[11px] font-semibold text-red-100 backdrop-blur-xl sm:flex">
+      <div className="absolute right-[2%] top-[10%] z-40 hidden items-center gap-2 rounded-full border border-red-300/20 bg-red-500/10 px-3 py-2 text-[11px] font-semibold text-red-100 backdrop-blur-xl sm:flex">
         <span className="h-2 w-2 rounded-full bg-red-300 shadow-[0_0_14px_rgba(252,165,165,.95)] orbit-star-twinkle" /> Orbit online
       </div>
     </div>
@@ -263,15 +306,15 @@ export function ModernLanding({ clients, stats }: { clients: LandingClient[]; st
           </nav>
         </div>
 
-        <div className="relative mx-auto grid max-w-6xl items-center gap-16 px-4 pb-10 pt-20 sm:px-6 lg:grid-cols-[.92fr_1.08fr] lg:pt-24">
+        <div className="relative mx-auto grid max-w-6xl items-center gap-14 px-4 pb-10 pt-20 sm:px-6 lg:grid-cols-[1.05fr_.95fr] lg:pt-24">
           <div className="relative z-10">
-            <div className="inline-flex items-center gap-2 rounded-full border border-red-300/20 bg-red-300/10 px-3 py-1.5 text-xs font-semibold text-red-200"><span className="h-1.5 w-1.5 rounded-full bg-red-300 shadow-[0_0_12px_rgba(239,35,42,.95)]" /> Sua página pronta para decolar</div>
-            <h1 className="mt-7 text-balance text-5xl font-semibold leading-[.96] tracking-[-0.06em] sm:text-6xl lg:text-7xl">Coloque tudo da sua marca <span className="bg-gradient-to-r from-white via-red-200 to-red-500 bg-clip-text text-transparent">em uma única órbita.</span></h1>
-            <p className="mt-7 max-w-xl text-lg leading-8 text-white/50">A Orbit cria, personaliza e publica sua página. Depois, você usa o painel apenas para atualizar links, imagens, fundo, Pix e acompanhar os resultados.</p>
+            <div className="inline-flex items-center gap-2 rounded-full border border-red-300/20 bg-red-300/10 px-3 py-1.5 text-xs font-semibold text-red-200"><span className="h-1.5 w-1.5 rounded-full bg-red-300 shadow-[0_0_12px_rgba(239,35,42,.95)]" /> Sua página pronta para usar</div>
+            <h1 className="mt-7 text-balance text-5xl font-semibold leading-[.98] tracking-[-0.055em] sm:text-6xl lg:text-7xl">Uma página profissional para reunir <span className="bg-gradient-to-r from-red-400 via-red-500 to-red-700 bg-clip-text text-transparent">tudo da sua marca.</span></h1>
+            <p className="mt-7 max-w-xl text-lg leading-8 text-white/50">Você recebe a página criada, personalizada e publicada. Depois, entra no seu painel apenas para atualizar conteúdo, imagens, links e acompanhar os resultados.</p>
             <div className="mt-9 flex flex-col gap-3 sm:flex-row"><Link href="/clientes" className="orbit-btn-primary min-w-[190px] py-3.5">Conhecer as páginas <ArrowRight size={18} /></Link><Link href="/cliente/login" className="orbit-btn-secondary min-w-[190px] py-3.5">Acessar meu painel <ChevronRight size={18} /></Link></div>
-            <div className="mt-8 flex flex-wrap gap-x-6 gap-y-3 text-xs text-white/40">{['Página criada para você', 'Visual exclusivo da sua marca', 'Editor simples com métricas reais'].map((item) => <span key={item} className="inline-flex items-center gap-2"><Check size={14} className="text-red-300" /> {item}</span>)}</div>
+            <div className="mt-8 flex flex-wrap gap-x-6 gap-y-3 text-xs text-white/40">{['Página criada para você', 'Editor simples', 'Métricas reais'].map((item) => <span key={item} className="inline-flex items-center gap-2"><Check size={14} className="text-red-300" /> {item}</span>)}</div>
           </div>
-          <SpaceHeroVisual client={featured} />
+          <OrbitalHeroPreview client={featured} />
         </div>
 
         <MetricsPanel clients={clients} stats={stats} />
