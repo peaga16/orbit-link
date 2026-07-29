@@ -1,8 +1,17 @@
 'use client';
 
 import { ChangeEvent, useRef, useState } from 'react';
+import { upload as uploadBlob } from '@vercel/blob/client';
 import { Image as ImageIcon, Loader2, Trash2, UploadCloud } from 'lucide-react';
 import { RemoteImage } from '@/components/ui/remote-image';
+
+const MAX_SOURCE_SIZE = 12 * 1024 * 1024;
+const ALLOWED_IMAGE_TYPES = new Set([
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'image/gif',
+]);
 
 type ImageUploadProps = {
   label: string;
@@ -12,6 +21,83 @@ type ImageUploadProps = {
   help?: string;
   previewClassName?: string;
 };
+
+function sanitizeFolder(value: string) {
+  return (
+    value
+      .toLowerCase()
+      .split('/')
+      .map((part) => part.replace(/[^a-z0-9_-]/g, '').slice(0, 50))
+      .filter(Boolean)
+      .join('/')
+      .slice(0, 120) || 'geral'
+  );
+}
+
+function sanitizeFileName(value: string) {
+  const extension = value.split('.').pop()?.toLowerCase().replace(/[^a-z0-9]/g, '');
+  const baseName = value
+    .replace(/\.[^/.]+$/, '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9_-]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 70) || 'imagem';
+
+  return extension ? `${baseName}.${extension}` : baseName;
+}
+
+function getTargetDimension(folder: string) {
+  if (/logo|avatar|perfil/i.test(folder)) return 1600;
+  return 2560;
+}
+
+async function optimizeImage(file: File, folder: string) {
+  if (file.type === 'image/gif') return file;
+
+  const supportedTypes = new Set(['image/jpeg', 'image/png', 'image/webp']);
+  if (!supportedTypes.has(file.type)) return file;
+
+  let bitmap: ImageBitmap | null = null;
+
+  try {
+    bitmap = await createImageBitmap(file);
+    const maxDimension = getTargetDimension(folder);
+    const scale = Math.min(
+      1,
+      maxDimension / Math.max(bitmap.width, bitmap.height),
+    );
+    const width = Math.max(1, Math.round(bitmap.width * scale));
+    const height = Math.max(1, Math.round(bitmap.height * scale));
+
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+
+    const context = canvas.getContext('2d', { alpha: true });
+    if (!context) return file;
+
+    context.drawImage(bitmap, 0, 0, width, height);
+
+    const optimizedBlob = await new Promise<Blob | null>((resolve) => {
+      canvas.toBlob(resolve, 'image/webp', 0.86);
+    });
+
+    if (!optimizedBlob) return file;
+    if (scale === 1 && optimizedBlob.size >= file.size) return file;
+
+    const baseName = sanitizeFileName(file.name).replace(/\.[^/.]+$/, '');
+    return new File([optimizedBlob], `${baseName}.webp`, {
+      type: 'image/webp',
+      lastModified: Date.now(),
+    });
+  } catch {
+    return file;
+  } finally {
+    bitmap?.close();
+  }
+}
 
 export function ImageUpload({
   label,
@@ -27,20 +113,37 @@ export function ImageUpload({
 
   async function upload(file?: File) {
     if (!file) return;
+
     setUploading(true);
     setError('');
 
     try {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('folder', folder);
+      if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
+        throw new Error('Envie uma imagem JPG, PNG, WEBP ou GIF.');
+      }
 
-      const response = await fetch('/api/upload', { method: 'POST', body: formData });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || 'Não foi possível enviar a imagem.');
-      onChange(data.url);
+      if (file.size > MAX_SOURCE_SIZE) {
+        throw new Error('A imagem deve ter no máximo 12 MB.');
+      }
+
+      const safeFolder = sanitizeFolder(folder);
+      const optimizedFile = await optimizeImage(file, safeFolder);
+      const safeFileName = sanitizeFileName(optimizedFile.name);
+      const pathname = `orbit/${safeFolder}/${safeFileName}`;
+
+      const blob = await uploadBlob(pathname, optimizedFile, {
+        access: 'public',
+        handleUploadUrl: '/api/upload',
+        clientPayload: JSON.stringify({ folder: safeFolder }),
+      });
+
+      onChange(blob.url);
     } catch (uploadError) {
-      setError(uploadError instanceof Error ? uploadError.message : 'Não foi possível enviar a imagem.');
+      setError(
+        uploadError instanceof Error
+          ? uploadError.message
+          : 'Não foi possível enviar a imagem.',
+      );
     } finally {
       setUploading(false);
       if (inputRef.current) inputRef.current.value = '';
@@ -57,19 +160,35 @@ export function ImageUpload({
       <div className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
         {value ? (
           <div className={`relative w-full overflow-hidden bg-slate-100 ${previewClassName}`}>
-            <RemoteImage src={value} alt={label} fill width={900} height={500} sizes="(max-width: 768px) 100vw, 50vw" quality={65} className="object-cover" />
+            <RemoteImage
+              src={value}
+              alt={label}
+              fill
+              width={900}
+              height={500}
+              sizes="(max-width: 768px) 100vw, 50vw"
+              quality={72}
+              className="object-cover"
+            />
             <div className="absolute inset-x-0 bottom-0 flex items-center justify-end gap-2 bg-gradient-to-t from-black/70 to-transparent p-3 pt-10">
               <button
                 type="button"
                 onClick={() => inputRef.current?.click()}
-                className="inline-flex items-center gap-2 rounded-lg bg-white/95 px-3 py-2 text-xs font-bold text-slate-800"
+                disabled={uploading}
+                className="inline-flex items-center gap-2 rounded-lg bg-white/95 px-3 py-2 text-xs font-bold text-slate-800 disabled:opacity-60"
               >
-                <UploadCloud size={14} /> Trocar
+                {uploading ? (
+                  <Loader2 size={14} className="animate-spin" />
+                ) : (
+                  <UploadCloud size={14} />
+                )}
+                {uploading ? 'Enviando...' : 'Trocar'}
               </button>
               <button
                 type="button"
                 onClick={() => onChange('')}
-                className="inline-flex items-center gap-2 rounded-lg bg-red-600 px-3 py-2 text-xs font-bold text-white"
+                disabled={uploading}
+                className="inline-flex items-center gap-2 rounded-lg bg-red-600 px-3 py-2 text-xs font-bold text-white disabled:opacity-60"
               >
                 <Trash2 size={14} /> Remover
               </button>
@@ -83,17 +202,31 @@ export function ImageUpload({
             className="flex min-h-32 w-full flex-col items-center justify-center gap-3 p-5 text-center transition hover:bg-white disabled:opacity-60"
           >
             <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-red-50 text-red-600">
-              {uploading ? <Loader2 size={20} className="animate-spin" /> : <ImageIcon size={20} />}
+              {uploading ? (
+                <Loader2 size={20} className="animate-spin" />
+              ) : (
+                <ImageIcon size={20} />
+              )}
             </div>
             <div>
-              <div className="text-sm font-bold text-slate-800">{uploading ? 'Enviando imagem...' : 'Selecionar imagem'}</div>
-              <div className="mt-1 text-xs text-slate-500">JPG, PNG, WEBP ou GIF, até 8 MB</div>
+              <div className="text-sm font-bold text-slate-800">
+                {uploading ? 'Otimizando e enviando...' : 'Selecionar imagem'}
+              </div>
+              <div className="mt-1 text-xs text-slate-500">
+                JPG, PNG, WEBP ou GIF, até 12 MB
+              </div>
             </div>
           </button>
         )}
       </div>
 
-      <input ref={inputRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif" onChange={handleFile} className="hidden" />
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp,image/gif"
+        onChange={handleFile}
+        className="hidden"
+      />
 
       <div className="mt-2 flex items-center gap-2">
         <UploadCloud size={14} className="shrink-0 text-slate-400" />

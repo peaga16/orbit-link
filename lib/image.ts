@@ -1,11 +1,16 @@
 const CLOUDINARY_HOST = 'res.cloudinary.com';
 const UNSPLASH_HOST = 'images.unsplash.com';
+const VERCEL_BLOB_HOST_SUFFIX = '.public.blob.vercel-storage.com';
 
 export function isNextImageHost(value?: string | null) {
   if (!value) return false;
   try {
     const hostname = new URL(value).hostname;
-    return hostname === CLOUDINARY_HOST || hostname === UNSPLASH_HOST;
+    return (
+      hostname === CLOUDINARY_HOST ||
+      hostname === UNSPLASH_HOST ||
+      hostname.endsWith(VERCEL_BLOB_HOST_SUFFIX)
+    );
   } catch {
     return false;
   }
