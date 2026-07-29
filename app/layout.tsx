@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import localFont from 'next/font/local';
+import favicon from './favicon.png';
 import './globals.css';
 
 const tecna = localFont({
@@ -17,6 +18,11 @@ const tecna = localFont({
 export const metadata: Metadata = {
   title: 'Orbit — Links, clientes e presença digital',
   description: 'Crie, gerencie e publique páginas profissionais para todos os seus clientes.',
+  icons: {
+    icon: favicon.src,
+    shortcut: favicon.src,
+    apple: favicon.src,
+  },
 };
 
 export const viewport: Viewport = {

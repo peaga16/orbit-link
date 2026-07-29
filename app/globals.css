@@ -358,3 +358,16 @@ select {
     animation: none !important;
   }
 }
+
+/* Orbit logo: dark version on dark surfaces and colored version on light surfaces. */
+.orbit-logo-adaptive .orbit-logo-on-dark {
+  display: none;
+}
+
+.orbit-public-page[data-appearance='dark'] .orbit-logo-adaptive .orbit-logo-on-light {
+  display: none;
+}
+
+.orbit-public-page[data-appearance='dark'] .orbit-logo-adaptive .orbit-logo-on-dark {
+  display: block;
+}

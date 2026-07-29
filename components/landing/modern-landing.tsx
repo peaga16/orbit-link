@@ -7,6 +7,7 @@ import {
   Eye,
   Globe2,
   Image as ImageIcon,
+  Instagram,
   Link2,
   MousePointerClick,
   Palette,
@@ -17,7 +18,8 @@ import {
   Zap,
 } from 'lucide-react';
 import { RemoteImage } from '@/components/ui/remote-image';
-import Image from 'next/image';
+import { OrbitLogo as OrbitBrandLogo } from '@/components/brand/orbit-logo';
+import { ContactEmailButton } from '@/components/landing/contact-email-button';
 
 export type LandingClient = {
   id: string;
@@ -76,20 +78,7 @@ function formatNumber(value: number) {
 }
 
 function OrbitLogo({ compact = false }: { compact?: boolean }) {
-  return (
-    <div className="relative">
-      <Image
-        src="/images/logos/logobrancavermelha1.png"
-        alt="Orbit"
-        width={compact ? 46 : 150}
-        height={compact ? 46 : 50}
-        priority
-        className={`object-contain ${
-          compact ? 'h-11 w-11' : 'h-12 w-auto'
-        }`}
-      />
-    </div>
-  );
+  return <OrbitBrandLogo variant="dark" size={compact ? 'compact' : 'medium'} priority={!compact} />;
 }
 
 function PagePreview({ client }: { client?: LandingClient }) {
@@ -290,7 +279,10 @@ export function ModernLanding({ clients, stats }: { clients: LandingClient[]; st
               <a href="#plano" className="transition hover:text-red-300">Plano</a>
               <a href="#contato" className="transition hover:text-red-300">Contato</a>
             </div>
-            <div className="hidden items-center gap-2 md:flex"><Link href="/cliente/login" className="orbit-btn-secondary px-4 py-2.5 text-sm">Área do cliente</Link></div>
+            <div className="hidden items-center gap-2 md:flex">
+              <a href="https://www.instagram.com/orbit.bio/" target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold text-white/65 transition hover:bg-white/[0.06] hover:text-red-300"><Instagram size={17} /> Instagram</a>
+              <Link href="/cliente/login" className="orbit-btn-secondary px-4 py-2.5 text-sm">Área do cliente</Link>
+            </div>
             <details className="group relative md:hidden">
               <summary className="flex cursor-pointer list-none items-center justify-center rounded-xl border border-white/10 px-3 py-2.5 text-sm font-semibold text-white/70">Menu</summary>
               <div className="absolute right-0 top-12 z-50 w-64 rounded-2xl border border-red-200/10 bg-black/95 p-4 shadow-2xl backdrop-blur-lg">
@@ -299,6 +291,7 @@ export function ModernLanding({ clients, stats }: { clients: LandingClient[]; st
                   <Link href="/clientes" className="rounded-lg px-3 py-3 text-white/70">Todas as páginas</Link>
                   <a href="#processo" className="rounded-lg px-3 py-3 text-white/70">Como funciona</a>
                   <a href="#plano" className="rounded-lg px-3 py-3 text-white/70">Plano</a>
+                  <a href="https://www.instagram.com/orbit.bio/" target="_blank" rel="noreferrer" className="flex items-center gap-2 rounded-lg px-3 py-3 text-white/70"><Instagram size={16} /> Instagram</a>
                   <Link href="/cliente/login" className="mt-2 rounded-xl bg-red-500 px-4 py-3 text-center font-semibold text-white">Área do cliente</Link>
                 </div>
               </div>
@@ -311,7 +304,11 @@ export function ModernLanding({ clients, stats }: { clients: LandingClient[]; st
             <div className="inline-flex items-center gap-2 rounded-full border border-red-300/20 bg-red-300/10 px-3 py-1.5 text-xs font-semibold text-red-200"><span className="h-1.5 w-1.5 rounded-full bg-red-300 shadow-[0_0_12px_rgba(239,35,42,.95)]" /> Sua página pronta para usar</div>
             <h1 className="mt-7 text-balance text-5xl font-semibold leading-[.98] tracking-[-0.055em] sm:text-6xl lg:text-7xl">Uma página profissional para reunir <span className="bg-gradient-to-r from-red-400 via-red-500 to-red-700 bg-clip-text text-transparent">tudo da sua marca.</span></h1>
             <p className="mt-7 max-w-xl text-lg leading-8 text-white/50">Você recebe a página criada, personalizada e publicada. Depois, entra no seu painel apenas para atualizar conteúdo, imagens, links e acompanhar os resultados.</p>
-            <div className="mt-9 flex flex-col gap-3 sm:flex-row"><Link href="/clientes" className="orbit-btn-primary min-w-[190px] py-3.5">Conhecer as páginas <ArrowRight size={18} /></Link><Link href="/cliente/login" className="orbit-btn-secondary min-w-[190px] py-3.5">Acessar meu painel <ChevronRight size={18} /></Link></div>
+            <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+              <Link href="/clientes" className="orbit-btn-primary min-w-[190px] py-3.5">Conhecer as páginas <ArrowRight size={18} /></Link>
+              <a href="https://www.instagram.com/orbit.bio/" target="_blank" rel="noreferrer" className="orbit-btn-secondary min-w-[190px] py-3.5"><Instagram size={18} /> Falar no Instagram</a>
+              <Link href="/cliente/login" className="inline-flex items-center justify-center gap-2 px-3 py-3.5 text-sm font-semibold text-white/45 transition hover:text-white">Já sou cliente <ChevronRight size={17} /></Link>
+            </div>
             <div className="mt-8 flex flex-wrap gap-x-6 gap-y-3 text-xs text-white/40">{['Página criada para você', 'Editor simples', 'Métricas reais'].map((item) => <span key={item} className="inline-flex items-center gap-2"><Check size={14} className="text-red-300" /> {item}</span>)}</div>
           </div>
           <OrbitalHeroPreview client={featured} />
@@ -388,11 +385,33 @@ export function ModernLanding({ clients, stats }: { clients: LandingClient[]; st
           <div className="relative mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-red-300/30 bg-red-600 text-white shadow-[0_0_36px_rgba(239,35,42,.25)]"><MousePointerClick size={25} /></div>
           <h2 className="relative mx-auto mt-6 max-w-2xl text-balance text-4xl font-semibold tracking-[-0.04em] sm:text-5xl">Sua marca merece mais do que uma lista comum de links.</h2>
           <p className="relative mx-auto mt-5 max-w-xl leading-7 text-white/50">Tenha uma página criada para o seu negócio, com acesso próprio para manter tudo atualizado.</p>
-          <div className="relative mt-8 flex flex-col justify-center gap-3 sm:flex-row"><Link href="/clientes" className="orbit-btn-primary px-7">Ver páginas publicadas <ArrowRight size={18} /></Link><Link href="/cliente/login" className="orbit-btn-secondary px-7">Área do cliente</Link></div>
+          <div className="relative mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+            <a href="https://www.instagram.com/orbit.bio/" target="_blank" rel="noreferrer" className="orbit-btn-primary px-7"><Instagram size={18} /> Chamar no Instagram</a>
+            <ContactEmailButton />
+          </div>
+          <div className="relative mt-5 flex flex-wrap justify-center gap-x-5 gap-y-2 text-xs text-white/35">
+            <Link href="/clientes" className="transition hover:text-red-300">Ver páginas publicadas</Link>
+            <Link href="/cliente/login" className="transition hover:text-red-300">Área do cliente</Link>
+          </div>
         </div>
       </section>
 
-      <footer className="border-t border-white/10 px-4 py-8 sm:px-6"><div className="mx-auto flex max-w-6xl flex-col gap-5 text-sm text-white/35 sm:flex-row sm:items-center sm:justify-between"><OrbitLogo /><div>© 2026 Orbit. Páginas profissionais de links.</div><div className="flex gap-5"><Link href="/clientes" className="hover:text-red-300">Clientes</Link><Link href="/cliente/login" className="hover:text-red-300">Entrar</Link></div></div></footer>
+      <footer className="border-t border-white/10 px-4 py-10 sm:px-6">
+        <div className="mx-auto grid max-w-6xl gap-8 text-sm text-white/35 md:grid-cols-[1fr_auto_auto] md:items-center">
+          <div><OrbitLogo /><div className="mt-4">© 2026 Orbit. Páginas profissionais de links.</div></div>
+          <div className="flex flex-col gap-3">
+            <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/25">Navegação</div>
+            <div className="flex gap-5"><Link href="/clientes" className="hover:text-red-300">Clientes</Link><Link href="/cliente/login" className="hover:text-red-300">Entrar</Link></div>
+          </div>
+          <div className="flex flex-col gap-3">
+            <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/25">Contato</div>
+            <div className="flex flex-wrap items-center gap-5">
+              <a href="https://www.instagram.com/orbit.bio/" target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 transition hover:text-red-300"><Instagram size={15} /> Instagram</a>
+              <ContactEmailButton compact />
+            </div>
+          </div>
+        </div>
+      </footer>
     </main>
   );
 }

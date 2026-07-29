@@ -13,6 +13,7 @@ import { PageControls } from '@/components/public/page-controls';
 import { ViewTracker } from '@/components/public/view-tracker';
 import { QRCodeComponent } from '@/components/ui/qrcode';
 import { RemoteImage } from '@/components/ui/remote-image';
+import { OrbitLogo } from '@/components/brand/orbit-logo';
 
 type PublicClient = {
   id: string;
@@ -230,8 +231,8 @@ export function ClientPublicPage({ client }: { client: PublicClient }) {
         </div>
 
         {client.showBranding && (
-          <Link href="/" className="mt-6 flex items-center justify-center gap-2 text-[10px] font-bold uppercase tracking-[0.22em] opacity-40 transition hover:opacity-70">
-            Criado com Orbit <ExternalLink size={11} />
+          <Link href="/" className="mt-6 flex items-center justify-center gap-2 opacity-55 transition hover:opacity-90" aria-label="Criado com Orbit">
+            <OrbitLogo variant="adaptive" size="compact" /> <ExternalLink size={11} />
           </Link>
         )}
       </div>

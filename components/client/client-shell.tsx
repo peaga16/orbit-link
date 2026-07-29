@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { BarChart3, ExternalLink, LayoutDashboard, LogOut, Menu, Pencil, X } from 'lucide-react';
 import { RemoteImage } from '@/components/ui/remote-image';
+import { OrbitLogo } from '@/components/brand/orbit-logo';
 
 const navItems = [
   { href: '/dashboard', label: 'Visão geral', icon: LayoutDashboard },
@@ -40,9 +41,8 @@ export function ClientShell({
   const sidebar = (
     <div className="flex h-full flex-col">
       <div className="flex h-20 items-center justify-between border-b border-white/10 px-5">
-        <Link href="/" className="flex items-center gap-3">
-          <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-red-500 to-red-900"><div className="h-4 w-4 rounded-full border-2 border-white" /><div className="absolute h-7 w-7 rotate-45 rounded-full border border-white/50" /></div>
-          <div><div className="text-base font-black tracking-[0.17em] text-white">ORBIT</div><div className="text-[8px] font-semibold uppercase tracking-[0.25em] text-red-400">Cliente</div></div>
+        <Link href="/" className="inline-flex items-center">
+          <OrbitLogo variant="dark" size="medium" priority />
         </Link>
         <button className="text-white/50 lg:hidden" onClick={() => setMobileOpen(false)} aria-label="Fechar menu"><X size={20} /></button>
       </div>

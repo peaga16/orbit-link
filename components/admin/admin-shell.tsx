@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { OrbitLogo } from '@/components/brand/orbit-logo';
 import {
   BarChart3,
   ChevronRight,
@@ -23,18 +24,7 @@ const navItems = [
 ];
 
 function Logo() {
-  return (
-    <div className="flex items-center gap-3">
-      <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-red-500 to-red-900 shadow-[0_0_30px_rgba(239,35,42,.22)]">
-        <div className="h-4 w-4 rounded-full border-2 border-white" />
-        <div className="absolute h-7 w-7 rotate-45 rounded-full border border-white/50" />
-      </div>
-      <div>
-        <div className="text-base font-black tracking-[0.17em] text-white">ORBIT</div>
-        <div className="text-[8px] font-semibold uppercase tracking-[0.25em] text-red-400">Admin</div>
-      </div>
-    </div>
-  );
+  return <OrbitLogo variant="dark" size="medium" priority />;
 }
 
 export function AdminShell({ children }: { children: React.ReactNode }) {

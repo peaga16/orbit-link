@@ -3,6 +3,7 @@
 import { FormEvent, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { OrbitLogo } from '@/components/brand/orbit-logo';
 import { ArrowLeft, ArrowRight, Eye, EyeOff, Loader2, LockKeyhole, Mail } from 'lucide-react';
 
 export function LoginForm() {
@@ -62,9 +63,8 @@ export function LoginForm() {
 
       <div className="flex w-full items-center justify-center px-5 py-12 lg:w-1/2">
         <div className="w-full max-w-md">
-          <Link href="/" className="mb-10 inline-flex items-center gap-3 lg:hidden">
-            <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-red-500 to-red-900"><div className="h-4 w-4 rounded-full border-2 border-white" /><div className="absolute h-7 w-7 rotate-45 rounded-full border border-white/50" /></div>
-            <span className="font-black tracking-[0.18em] text-white">ORBIT</span>
+          <Link href="/" className="mb-10 inline-flex items-center lg:hidden">
+            <OrbitLogo variant="dark" size="large" priority />
           </Link>
           <div className="text-xs font-bold uppercase tracking-[0.24em] text-red-500">Bem-vindo de volta</div>
           <h2 className="mt-3 text-3xl font-bold tracking-tight text-white">Acesse o administrador</h2>

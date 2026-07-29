@@ -1,7 +1,9 @@
 import Link from 'next/link';
 import { unstable_cache } from 'next/cache';
-import { ArrowLeft, ArrowRight, Eye, Link2, MousePointerClick } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Eye, Instagram, Link2, MousePointerClick } from 'lucide-react';
 import { RemoteImage } from '@/components/ui/remote-image';
+import { OrbitLogo } from '@/components/brand/orbit-logo';
+import { ContactEmailButton } from '@/components/landing/contact-email-button';
 import { prisma } from '@/lib/prisma';
 
 export const revalidate = 60;
@@ -49,9 +51,10 @@ export default async function PublicClientsPage() {
       <div className="pointer-events-none absolute -left-40 top-44 h-[420px] w-[420px] rounded-full bg-red-600/15 blur-[70px] sm:blur-[130px]" />
       <div className="pointer-events-none absolute -right-40 top-16 h-[420px] w-[420px] rounded-full bg-red-400/10 blur-[70px] sm:blur-[130px]" />
       <div className="relative mx-auto max-w-6xl">
-        <div className="flex items-center justify-between gap-4">
-          <Link href="/" className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm font-semibold text-white/70 transition hover:bg-white/[0.08] hover:text-white"><ArrowLeft size={16} /> Voltar</Link>
-          <Link href="/cliente/login" className="rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold transition hover:bg-red-500">Área do cliente</Link>
+        <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
+          <div className="justify-self-start"><Link href="/" className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2.5 text-sm font-semibold text-white/70 transition hover:bg-white/[0.08] hover:text-white sm:px-4"><ArrowLeft size={16} /> <span className="hidden sm:inline">Voltar</span></Link></div>
+          <Link href="/" className="inline-flex items-center justify-self-center"><OrbitLogo variant="dark" size="medium" priority /></Link>
+          <div className="justify-self-end"><Link href="/cliente/login" className="rounded-xl bg-red-600 px-3 py-2.5 text-sm font-semibold transition hover:bg-red-500 sm:px-4">Área do cliente</Link></div>
         </div>
 
         <header className="mx-auto max-w-3xl py-20 text-center sm:py-24">
@@ -108,7 +111,15 @@ export default async function PublicClientsPage() {
 
         {!clients.length && <div className="rounded-3xl border border-dashed border-white/15 p-16 text-center text-white/40">Nenhum cliente publicado ainda.</div>}
 
-        <footer className="py-16 text-center text-xs text-white/25">© 2026 Orbit. Páginas profissionais de links.</footer>
+        <footer className="mt-16 border-t border-white/10 py-12">
+          <div className="flex flex-col items-center justify-between gap-7 text-sm text-white/35 sm:flex-row">
+            <div className="text-center sm:text-left"><OrbitLogo variant="dark" size="small" /><div className="mt-3 text-xs">© 2026 Orbit. Páginas profissionais de links.</div></div>
+            <div className="flex flex-wrap items-center justify-center gap-5">
+              <a href="https://www.instagram.com/orbit.bio/" target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 transition hover:text-red-300"><Instagram size={15} /> Instagram</a>
+              <ContactEmailButton compact />
+            </div>
+          </div>
+        </footer>
       </div>
     </main>
   );
