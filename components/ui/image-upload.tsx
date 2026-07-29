@@ -163,7 +163,7 @@ export function ImageUpload({
 
       setError(
         rawMessage.includes('Failed to retrieve the client token')
-          ? 'Não foi possível gerar o token do Vercel Blob. Entre novamente e confirme se o Blob público está conectado a este projeto e ambiente.'
+          ? 'Não foi possível autorizar o upload no Vercel Blob. Entre novamente, confirme se o store está conectado a este projeto e faça um novo deploy.'
           : rawMessage,
       );
     } finally {

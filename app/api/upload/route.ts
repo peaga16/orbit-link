@@ -14,20 +14,6 @@ const ALLOWED_IMAGE_TYPES = [
   'image/gif',
 ];
 
-function cleanEnv(value?: string) {
-  if (!value) return '';
-
-  return value
-    .trim()
-    .replace(/^['"]|['"]$/g, '')
-    .replace(/^BLOB_READ_WRITE_TOKEN\s*=\s*/i, '')
-    .trim();
-}
-
-function getBlobToken() {
-  return cleanEnv(process.env.BLOB_READ_WRITE_TOKEN);
-}
-
 function getSession(request: NextRequest) {
   const isAdmin = verifyAdminToken(
     request.cookies.get(ADMIN_COOKIE_NAME)?.value,
@@ -52,8 +38,9 @@ function sanitizeFolder(value: string) {
 }
 
 /**
- * Verificação usada pelo componente antes de pedir o token de upload.
- * Não revela o token; apenas informa se a sessão e o Blob estão prontos.
+ * Verifica somente a sessão antes de iniciar o upload.
+ * Stores novos do Vercel Blob usam OIDC automaticamente e, por isso,
+ * não precisam expor BLOB_READ_WRITE_TOKEN no projeto.
  */
 export async function GET(request: NextRequest) {
   const { isAdmin, clientSession } = getSession(request);
@@ -65,39 +52,26 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  if (!getBlobToken()) {
+  if (process.env.VERCEL && !process.env.BLOB_STORE_ID) {
     return NextResponse.json(
       {
         error:
-          'BLOB_READ_WRITE_TOKEN não está disponível neste deployment. Conecte um Blob público ao projeto e faça um novo redeploy.',
+          'O Vercel Blob não está conectado a este projeto ou ambiente. Conecte o store e faça um novo deploy.',
       },
       { status: 503 },
     );
   }
 
-  return NextResponse.json({ ready: true });
+  return NextResponse.json({ ready: true, auth: 'oidc' });
 }
 
 export async function POST(request: NextRequest) {
-  const token = getBlobToken();
-
-  if (!token) {
-    return NextResponse.json(
-      {
-        error:
-          'BLOB_READ_WRITE_TOKEN não está disponível neste deployment. Conecte o Vercel Blob ao projeto e faça um novo redeploy.',
-      },
-      { status: 503 },
-    );
-  }
-
   try {
     const body = (await request.json()) as HandleUploadBody;
 
     const response = await handleUpload({
       request,
       body,
-      token,
       onBeforeGenerateToken: async (pathname, clientPayload) => {
         const { isAdmin, clientSession } = getSession(request);
 
@@ -147,7 +121,7 @@ export async function POST(request: NextRequest) {
     const message =
       error instanceof Error
         ? error.message
-        : 'Não foi possível gerar o token de upload.';
+        : 'Não foi possível gerar a autorização de upload.';
 
     console.error('[Vercel Blob upload]', message);
 
