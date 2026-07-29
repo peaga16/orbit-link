@@ -1,4 +1,4 @@
-import { handleUpload, type HandleUploadBody } from '@vercel/blob/client';
+import { put } from '@vercel/blob';
 import { NextRequest, NextResponse } from 'next/server';
 import { ADMIN_COOKIE_NAME, verifyAdminToken } from '@/lib/admin-auth';
 import { CLIENT_COOKIE_NAME, verifyClientToken } from '@/lib/client-auth';
@@ -6,13 +6,14 @@ import { CLIENT_COOKIE_NAME, verifyClientToken } from '@/lib/client-auth';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-const MAX_IMAGE_SIZE = 12 * 1024 * 1024;
-const ALLOWED_IMAGE_TYPES = [
+// Mantém margem abaixo do limite de 4,5 MB das Vercel Functions.
+const MAX_IMAGE_SIZE = 4 * 1024 * 1024;
+const ALLOWED_IMAGE_TYPES = new Set([
   'image/jpeg',
   'image/png',
   'image/webp',
   'image/gif',
-];
+]);
 
 function getSession(request: NextRequest) {
   const isAdmin = verifyAdminToken(
@@ -25,23 +26,41 @@ function getSession(request: NextRequest) {
   return { isAdmin, clientSession };
 }
 
+function sanitizePathPart(value: string, fallback: string) {
+  return (
+    value
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .replace(/[^a-z0-9_-]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 80) || fallback
+  );
+}
+
 function sanitizeFolder(value: string) {
   return (
     value
       .toLowerCase()
       .split('/')
-      .map((part) => part.replace(/[^a-z0-9_-]/g, '').slice(0, 50))
+      .map((part) => sanitizePathPart(part, ''))
       .filter(Boolean)
       .join('/')
       .slice(0, 120) || 'geral'
   );
 }
 
-/**
- * Verifica somente a sessão antes de iniciar o upload.
- * Stores novos do Vercel Blob usam OIDC automaticamente e, por isso,
- * não precisam expor BLOB_READ_WRITE_TOKEN no projeto.
- */
+function sanitizeFileName(value: string) {
+  const extension = value
+    .split('.')
+    .pop()
+    ?.toLowerCase()
+    .replace(/[^a-z0-9]/g, '');
+  const baseName = sanitizePathPart(value.replace(/\.[^/.]+$/, ''), 'imagem');
+
+  return extension ? `${baseName}.${extension}` : baseName;
+}
+
 export async function GET(request: NextRequest) {
   const { isAdmin, clientSession } = getSession(request);
 
@@ -52,79 +71,100 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  if (process.env.VERCEL && !process.env.BLOB_STORE_ID) {
+  const hasLegacyToken = Boolean(process.env.BLOB_READ_WRITE_TOKEN);
+  const hasOidc = Boolean(
+    process.env.VERCEL || process.env.VERCEL_OIDC_TOKEN,
+  );
+
+  if (!hasLegacyToken && !hasOidc) {
     return NextResponse.json(
       {
         error:
-          'O Vercel Blob não está conectado a este projeto ou ambiente. Conecte o store e faça um novo deploy.',
+          'O Blob não está autenticado neste ambiente. No computador, execute: npx vercel link && npx vercel env pull .env.local. Depois reinicie o servidor.',
       },
       { status: 503 },
     );
   }
 
-  return NextResponse.json({ ready: true, auth: 'oidc' });
+  return NextResponse.json({
+    ready: true,
+    authentication: hasLegacyToken ? 'read-write-token' : 'oidc',
+  });
 }
 
 export async function POST(request: NextRequest) {
+  const { isAdmin, clientSession } = getSession(request);
+
+  if (!isAdmin && !clientSession) {
+    return NextResponse.json(
+      { error: 'Sua sessão expirou. Entre novamente antes de enviar imagens.' },
+      { status: 401 },
+    );
+  }
+
   try {
-    const body = (await request.json()) as HandleUploadBody;
+    const formData = await request.formData();
+    const file = formData.get('file');
+    const folder = sanitizeFolder(String(formData.get('folder') || 'geral'));
 
-    const response = await handleUpload({
-      request,
-      body,
-      onBeforeGenerateToken: async (pathname, clientPayload) => {
-        const { isAdmin, clientSession } = getSession(request);
+    if (!(file instanceof File)) {
+      return NextResponse.json(
+        { error: 'Selecione uma imagem.' },
+        { status: 400 },
+      );
+    }
 
-        if (!isAdmin && !clientSession) {
-          throw new Error(
-            'Sua sessão expirou. Entre novamente antes de enviar imagens.',
-          );
-        }
+    if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
+      return NextResponse.json(
+        { error: 'Envie uma imagem JPG, PNG, WEBP ou GIF.' },
+        { status: 400 },
+      );
+    }
 
-        let requestedFolder = 'geral';
+    if (file.size > MAX_IMAGE_SIZE) {
+      return NextResponse.json(
+        {
+          error:
+            'A imagem otimizada ultrapassou 4 MB. Escolha uma imagem menor ou reduza a resolução.',
+        },
+        { status: 413 },
+      );
+    }
 
-        if (clientPayload) {
-          try {
-            const payload = JSON.parse(clientPayload) as { folder?: string };
-            requestedFolder = payload.folder || 'geral';
-          } catch {
-            throw new Error('Dados do upload inválidos.');
-          }
-        }
+    const fileName = sanitizeFileName(file.name);
+    const pathname = `orbit/${folder}/${fileName}`;
 
-        const safeFolder = sanitizeFolder(requestedFolder);
-        const expectedPrefix = `orbit/${safeFolder}/`;
-
-        if (!pathname.startsWith(expectedPrefix)) {
-          throw new Error('Destino do upload inválido.');
-        }
-
-        return {
-          allowedContentTypes: ALLOWED_IMAGE_TYPES,
-          maximumSizeInBytes: MAX_IMAGE_SIZE,
-          addRandomSuffix: true,
-          cacheControlMaxAge: 60 * 60 * 24 * 365,
-          tokenPayload: JSON.stringify({
-            folder: safeFolder,
-            workspaceId: clientSession?.workspaceId || null,
-            uploadedBy: isAdmin ? 'admin' : 'client',
-          }),
-        };
-      },
-      onUploadCompleted: async () => {
-        // A URL retornada pelo upload é salva quando o formulário é salvo.
-      },
+    const blob = await put(pathname, file, {
+      access: 'public',
+      addRandomSuffix: true,
+      cacheControlMaxAge: 60 * 60 * 24 * 365,
+      ...(process.env.BLOB_READ_WRITE_TOKEN
+        ? { token: process.env.BLOB_READ_WRITE_TOKEN }
+        : {}),
     });
 
-    return NextResponse.json(response);
+    return NextResponse.json({
+      url: blob.url,
+      pathname: blob.pathname,
+      uploadedBy: isAdmin ? 'admin' : 'client',
+      workspaceId: clientSession?.workspaceId || null,
+    });
   } catch (error) {
     const message =
       error instanceof Error
         ? error.message
-        : 'Não foi possível gerar a autorização de upload.';
+        : 'Não foi possível enviar a imagem.';
 
-    console.error('[Vercel Blob upload]', message);
+    console.error('[Vercel Blob server upload]', message);
 
-    return NextResponse.json({ error: message }, { status: 400 });
+    return NextResponse.json(
+      {
+        error:
+          message.includes('token') || message.includes('OIDC')
+            ? 'O Blob não conseguiu autenticar este ambiente. Reconecte o Blob ao projeto, use @vercel/blob atualizado e faça um novo deploy.'
+            : message,
+      },
+      { status: 400 },
+    );
   }
 }

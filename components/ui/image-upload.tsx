@@ -1,11 +1,11 @@
 'use client';
 
 import { ChangeEvent, useRef, useState } from 'react';
-import { upload as uploadBlob } from '@vercel/blob/client';
 import { Image as ImageIcon, Loader2, Trash2, UploadCloud } from 'lucide-react';
 import { RemoteImage } from '@/components/ui/remote-image';
 
 const MAX_SOURCE_SIZE = 12 * 1024 * 1024;
+const MAX_FINAL_SIZE = 3.8 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = new Set([
   'image/jpeg',
   'image/png',
@@ -35,7 +35,11 @@ function sanitizeFolder(value: string) {
 }
 
 function sanitizeFileName(value: string) {
-  const extension = value.split('.').pop()?.toLowerCase().replace(/[^a-z0-9]/g, '');
+  const extension = value
+    .split('.')
+    .pop()
+    ?.toLowerCase()
+    .replace(/[^a-z0-9]/g, '');
   const baseName = value
     .replace(/\.[^/.]+$/, '')
     .normalize('NFD')
@@ -53,49 +57,68 @@ function getTargetDimension(folder: string) {
   return 2560;
 }
 
+function canvasToBlob(
+  canvas: HTMLCanvasElement,
+  quality: number,
+): Promise<Blob | null> {
+  return new Promise((resolve) => {
+    canvas.toBlob(resolve, 'image/webp', quality);
+  });
+}
+
 async function optimizeImage(file: File, folder: string) {
-  if (file.type === 'image/gif') return file;
+  if (file.type === 'image/gif') {
+    if (file.size > MAX_FINAL_SIZE) {
+      throw new Error('GIFs devem ter no máximo 3,8 MB.');
+    }
+    return file;
+  }
 
-  const supportedTypes = new Set(['image/jpeg', 'image/png', 'image/webp']);
-  if (!supportedTypes.has(file.type)) return file;
-
-  let bitmap: ImageBitmap | null = null;
+  const bitmap = await createImageBitmap(file);
 
   try {
-    bitmap = await createImageBitmap(file);
     const maxDimension = getTargetDimension(folder);
-    const scale = Math.min(
+    let scale = Math.min(
       1,
       maxDimension / Math.max(bitmap.width, bitmap.height),
     );
-    const width = Math.max(1, Math.round(bitmap.width * scale));
-    const height = Math.max(1, Math.round(bitmap.height * scale));
+    let quality = 0.86;
 
-    const canvas = document.createElement('canvas');
-    canvas.width = width;
-    canvas.height = height;
+    for (let attempt = 0; attempt < 10; attempt += 1) {
+      const width = Math.max(1, Math.round(bitmap.width * scale));
+      const height = Math.max(1, Math.round(bitmap.height * scale));
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
 
-    const context = canvas.getContext('2d', { alpha: true });
-    if (!context) return file;
+      const context = canvas.getContext('2d', { alpha: true });
+      if (!context) {
+        throw new Error('Seu navegador não conseguiu preparar esta imagem.');
+      }
 
-    context.drawImage(bitmap, 0, 0, width, height);
+      context.drawImage(bitmap, 0, 0, width, height);
+      const optimizedBlob = await canvasToBlob(canvas, quality);
 
-    const optimizedBlob = await new Promise<Blob | null>((resolve) => {
-      canvas.toBlob(resolve, 'image/webp', 0.86);
-    });
+      if (optimizedBlob && optimizedBlob.size <= MAX_FINAL_SIZE) {
+        const baseName = sanitizeFileName(file.name).replace(/\.[^/.]+$/, '');
+        return new File([optimizedBlob], `${baseName}.webp`, {
+          type: 'image/webp',
+          lastModified: Date.now(),
+        });
+      }
 
-    if (!optimizedBlob) return file;
-    if (scale === 1 && optimizedBlob.size >= file.size) return file;
+      if (quality > 0.62) {
+        quality -= 0.08;
+      } else {
+        scale *= 0.82;
+      }
+    }
 
-    const baseName = sanitizeFileName(file.name).replace(/\.[^/.]+$/, '');
-    return new File([optimizedBlob], `${baseName}.webp`, {
-      type: 'image/webp',
-      lastModified: Date.now(),
-    });
-  } catch {
-    return file;
+    throw new Error(
+      'Não foi possível reduzir esta imagem para o limite de envio. Escolha outra imagem.',
+    );
   } finally {
-    bitmap?.close();
+    bitmap.close();
   }
 }
 
@@ -123,48 +146,36 @@ export function ImageUpload({
       }
 
       if (file.size > MAX_SOURCE_SIZE) {
-        throw new Error('A imagem deve ter no máximo 12 MB.');
-      }
-
-      const readinessResponse = await fetch('/api/upload', {
-        method: 'GET',
-        credentials: 'same-origin',
-        cache: 'no-store',
-      });
-
-      if (!readinessResponse.ok) {
-        const readinessBody = (await readinessResponse.json().catch(() => null)) as
-          | { error?: string }
-          | null;
-
-        throw new Error(
-          readinessBody?.error ||
-            'O Vercel Blob não está configurado neste deployment.',
-        );
+        throw new Error('A imagem original deve ter no máximo 12 MB.');
       }
 
       const safeFolder = sanitizeFolder(folder);
       const optimizedFile = await optimizeImage(file, safeFolder);
-      const safeFileName = sanitizeFileName(optimizedFile.name);
-      const pathname = `orbit/${safeFolder}/${safeFileName}`;
+      const formData = new FormData();
+      formData.append('file', optimizedFile);
+      formData.append('folder', safeFolder);
 
-      const blob = await uploadBlob(pathname, optimizedFile, {
-        access: 'public',
-        handleUploadUrl: '/api/upload',
-        clientPayload: JSON.stringify({ folder: safeFolder }),
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+        credentials: 'same-origin',
+        cache: 'no-store',
       });
 
-      onChange(blob.url);
+      const data = (await response.json().catch(() => null)) as
+        | { url?: string; error?: string }
+        | null;
+
+      if (!response.ok || !data?.url) {
+        throw new Error(data?.error || 'Não foi possível enviar a imagem.');
+      }
+
+      onChange(data.url);
     } catch (uploadError) {
-      const rawMessage =
+      setError(
         uploadError instanceof Error
           ? uploadError.message
-          : 'Não foi possível enviar a imagem.';
-
-      setError(
-        rawMessage.includes('Failed to retrieve the client token')
-          ? 'Não foi possível autorizar o upload no Vercel Blob. Entre novamente, confirme se o store está conectado a este projeto e faça um novo deploy.'
-          : rawMessage,
+          : 'Não foi possível enviar a imagem.',
       );
     } finally {
       setUploading(false);
