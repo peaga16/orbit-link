@@ -6,7 +6,6 @@ export function middleware(request: NextRequest) {
   const isAdminApi = pathname.startsWith('/api/admin') && pathname !== '/api/admin/login';
   const isClientPage = pathname.startsWith('/dashboard');
   const isClientApi = pathname.startsWith('/api/client') && pathname !== '/api/client/login';
-  const isUpload = pathname === '/api/upload';
 
   const hasAdminSession = Boolean(request.cookies.get('orbit_admin_session')?.value);
   const hasClientSession = Boolean(request.cookies.get('orbit_client_session')?.value);
@@ -31,13 +30,14 @@ export function middleware(request: NextRequest) {
     return NextResponse.json({ error: 'Não autorizado.' }, { status: 401 });
   }
 
-  if (isUpload && !hasAdminSession && !hasClientSession) {
-    return NextResponse.json({ error: 'Não autorizado.' }, { status: 401 });
-  }
-
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/admin/:path*', '/dashboard/:path*', '/api/admin/:path*', '/api/client/:path*', '/api/upload'],
+  matcher: [
+    '/admin/:path*',
+    '/dashboard/:path*',
+    '/api/admin/:path*',
+    '/api/client/:path*',
+  ],
 };

@@ -14,6 +14,31 @@ const ALLOWED_IMAGE_TYPES = [
   'image/gif',
 ];
 
+function cleanEnv(value?: string) {
+  if (!value) return '';
+
+  return value
+    .trim()
+    .replace(/^['"]|['"]$/g, '')
+    .replace(/^BLOB_READ_WRITE_TOKEN\s*=\s*/i, '')
+    .trim();
+}
+
+function getBlobToken() {
+  return cleanEnv(process.env.BLOB_READ_WRITE_TOKEN);
+}
+
+function getSession(request: NextRequest) {
+  const isAdmin = verifyAdminToken(
+    request.cookies.get(ADMIN_COOKIE_NAME)?.value,
+  );
+  const clientSession = verifyClientToken(
+    request.cookies.get(CLIENT_COOKIE_NAME)?.value,
+  );
+
+  return { isAdmin, clientSession };
+}
+
 function sanitizeFolder(value: string) {
   return (
     value
@@ -26,23 +51,60 @@ function sanitizeFolder(value: string) {
   );
 }
 
+/**
+ * Verificação usada pelo componente antes de pedir o token de upload.
+ * Não revela o token; apenas informa se a sessão e o Blob estão prontos.
+ */
+export async function GET(request: NextRequest) {
+  const { isAdmin, clientSession } = getSession(request);
+
+  if (!isAdmin && !clientSession) {
+    return NextResponse.json(
+      { error: 'Sua sessão expirou. Entre novamente antes de enviar imagens.' },
+      { status: 401 },
+    );
+  }
+
+  if (!getBlobToken()) {
+    return NextResponse.json(
+      {
+        error:
+          'BLOB_READ_WRITE_TOKEN não está disponível neste deployment. Conecte um Blob público ao projeto e faça um novo redeploy.',
+      },
+      { status: 503 },
+    );
+  }
+
+  return NextResponse.json({ ready: true });
+}
+
 export async function POST(request: NextRequest) {
+  const token = getBlobToken();
+
+  if (!token) {
+    return NextResponse.json(
+      {
+        error:
+          'BLOB_READ_WRITE_TOKEN não está disponível neste deployment. Conecte o Vercel Blob ao projeto e faça um novo redeploy.',
+      },
+      { status: 503 },
+    );
+  }
+
   try {
     const body = (await request.json()) as HandleUploadBody;
 
     const response = await handleUpload({
       request,
       body,
+      token,
       onBeforeGenerateToken: async (pathname, clientPayload) => {
-        const isAdmin = verifyAdminToken(
-          request.cookies.get(ADMIN_COOKIE_NAME)?.value,
-        );
-        const clientSession = verifyClientToken(
-          request.cookies.get(CLIENT_COOKIE_NAME)?.value,
-        );
+        const { isAdmin, clientSession } = getSession(request);
 
         if (!isAdmin && !clientSession) {
-          throw new Error('Não autorizado. Entre novamente para enviar imagens.');
+          throw new Error(
+            'Sua sessão expirou. Entre novamente antes de enviar imagens.',
+          );
         }
 
         let requestedFolder = 'geral';
@@ -68,10 +130,15 @@ export async function POST(request: NextRequest) {
           maximumSizeInBytes: MAX_IMAGE_SIZE,
           addRandomSuffix: true,
           cacheControlMaxAge: 60 * 60 * 24 * 365,
+          tokenPayload: JSON.stringify({
+            folder: safeFolder,
+            workspaceId: clientSession?.workspaceId || null,
+            uploadedBy: isAdmin ? 'admin' : 'client',
+          }),
         };
       },
       onUploadCompleted: async () => {
-        // A URL retornada pelo upload é salva no cadastro quando o formulário é salvo.
+        // A URL retornada pelo upload é salva quando o formulário é salvo.
       },
     });
 
@@ -80,7 +147,9 @@ export async function POST(request: NextRequest) {
     const message =
       error instanceof Error
         ? error.message
-        : 'Não foi possível enviar a imagem.';
+        : 'Não foi possível gerar o token de upload.';
+
+    console.error('[Vercel Blob upload]', message);
 
     return NextResponse.json({ error: message }, { status: 400 });
   }

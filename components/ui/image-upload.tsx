@@ -126,6 +126,23 @@ export function ImageUpload({
         throw new Error('A imagem deve ter no máximo 12 MB.');
       }
 
+      const readinessResponse = await fetch('/api/upload', {
+        method: 'GET',
+        credentials: 'same-origin',
+        cache: 'no-store',
+      });
+
+      if (!readinessResponse.ok) {
+        const readinessBody = (await readinessResponse.json().catch(() => null)) as
+          | { error?: string }
+          | null;
+
+        throw new Error(
+          readinessBody?.error ||
+            'O Vercel Blob não está configurado neste deployment.',
+        );
+      }
+
       const safeFolder = sanitizeFolder(folder);
       const optimizedFile = await optimizeImage(file, safeFolder);
       const safeFileName = sanitizeFileName(optimizedFile.name);
@@ -139,10 +156,15 @@ export function ImageUpload({
 
       onChange(blob.url);
     } catch (uploadError) {
-      setError(
+      const rawMessage =
         uploadError instanceof Error
           ? uploadError.message
-          : 'Não foi possível enviar a imagem.',
+          : 'Não foi possível enviar a imagem.';
+
+      setError(
+        rawMessage.includes('Failed to retrieve the client token')
+          ? 'Não foi possível gerar o token do Vercel Blob. Entre novamente e confirme se o Blob público está conectado a este projeto e ambiente.'
+          : rawMessage,
       );
     } finally {
       setUploading(false);
